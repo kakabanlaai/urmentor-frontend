@@ -1,9 +1,9 @@
-import {Label} from 'flowbite-react';
+import { Label } from './components/ui/label';
 
 function App() {
   return (
-    <div>
-      <Label>urMentor web app</Label>
+    <div className="flex h-screen w-screen items-center justify-center">
+      <Label>Home Page</Label>
     </div>
   );
 }
