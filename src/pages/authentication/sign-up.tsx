@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { FC } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
+import { Loader2 } from 'lucide-react';
+import { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
 import { HiArrowLeft } from 'react-icons/hi';
@@ -23,6 +25,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label.tsx';
+import { useSignInWithGoogle, useSignUp } from '@/services/queries/auth.ts';
 
 const formSchema = z
   .object({
@@ -38,6 +42,8 @@ const formSchema = z
     path: ['confirmPassword'],
   });
 const SignUpPage: FC = () => {
+  const [errMessage, setErrMessage] = useState('');
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,6 +53,45 @@ const SignUpPage: FC = () => {
       confirmPassword: '',
     },
   });
+
+  const { mutate: signUp, isPending } = useSignUp();
+
+  const {
+    mutate: signInWithGoogleMutate,
+    isPending: isSignInWithGooglePending,
+  } = useSignInWithGoogle();
+
+  const signInWithGoogle = useGoogleLogin({
+    onSuccess: (tokenResponse) =>
+      signInWithGoogleMutate(
+        { token: tokenResponse.access_token },
+        {
+          onError: (err) => {
+            setErrMessage(err.message);
+          },
+        },
+      ),
+    onError: (err) => {
+      setErrMessage(err.error_description || '');
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    signUp(values, {
+      onError: (err) => {
+        switch (err.message) {
+          case 'Conflict':
+            setErrMessage('Người dùng đã tồn tại');
+            break;
+          default:
+            setErrMessage(err.message);
+            break;
+        }
+      },
+    });
+  };
+
+  const isSignInPending = isPending || isSignInWithGooglePending;
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
@@ -63,9 +108,7 @@ const SignUpPage: FC = () => {
           <CardContent>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit((values) => {
-                  console.log(values);
-                })}
+                onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-5"
               >
                 <FormField
@@ -128,7 +171,17 @@ const SignUpPage: FC = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
+                {errMessage ? (
+                  <Label className="text-sm text-red-500">{errMessage}</Label>
+                ) : null}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSignInPending}
+                >
+                  {isSignInPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   Đăng ký
                 </Button>
               </form>
@@ -147,7 +200,12 @@ const SignUpPage: FC = () => {
           </div>
 
           <CardFooter className="flex flex-col">
-            <Button variant="outline" className="w-full">
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={isSignInPending}
+              onClick={() => signInWithGoogle()}
+            >
               <FcGoogle className="mr-2 h-4 w-4" />
               Đăng ký với Google
             </Button>

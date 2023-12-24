@@ -11,5 +11,9 @@ export type SignInBody = {
   password: string;
 };
 
+export type SignInWithGoogleBody = {
+  token: string;
+};
+
 export type SignUpResponse = User & TokenObject;
 export type SignInResponse = User & TokenObject;

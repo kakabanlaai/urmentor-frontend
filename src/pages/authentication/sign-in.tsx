@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label.tsx';
-import { useSignIn } from '@/services/queries/auth';
+import { useSignIn, useSignInWithGoogle } from '@/services/queries/auth';
 
 const formSchema = z.object({
   email: z.coerce.string().email('Email không hợp lệ'),
@@ -45,9 +45,24 @@ const SignInPage: FC = () => {
   });
 
   const { mutate: signIn, isPending } = useSignIn();
+  const {
+    mutate: signInWithGoogleMutate,
+    isPending: isSignInWithGooglePending,
+  } = useSignInWithGoogle();
 
   const signInWithGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
+    onSuccess: (tokenResponse) =>
+      signInWithGoogleMutate(
+        { token: tokenResponse.access_token },
+        {
+          onError: (err) => {
+            setErrMessage(err.message);
+          },
+        },
+      ),
+    onError: (err) => {
+      setErrMessage(err.error_description || '');
+    },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -57,6 +72,8 @@ const SignInPage: FC = () => {
       },
     });
   };
+
+  const isSignInPending = isPending || isSignInWithGooglePending;
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
@@ -109,8 +126,12 @@ const SignInPage: FC = () => {
                 {errMessage ? (
                   <Label className="text-sm text-red-500">{errMessage}</Label>
                 ) : null}
-                <Button type="submit" className="w-full" disabled={isPending}>
-                  {isPending ? (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSignInPending}
+                >
+                  {isSignInPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
                   Đăng nhập
@@ -135,6 +156,7 @@ const SignInPage: FC = () => {
               variant="outline"
               className="w-full"
               onClick={() => signInWithGoogle()}
+              disabled={isSignInPending}
             >
               <FcGoogle className="mr-2 h-4 w-4" />
               Đăng nhập với Google
