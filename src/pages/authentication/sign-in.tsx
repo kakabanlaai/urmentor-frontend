@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGoogleLogin } from '@react-oauth/google';
 import { Loader2 } from 'lucide-react';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
 import { HiArrowLeft } from 'react-icons/hi';
@@ -24,9 +24,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label.tsx';
-import { useSignIn, useSignInWithGoogle } from '@/services/queries/auth';
+import { useMe, useSignIn, useSignInWithGoogle } from '@/services/queries/auth';
 
 const formSchema = z.object({
   email: z.coerce.string().email('Email không hợp lệ'),
@@ -34,8 +35,16 @@ const formSchema = z.object({
 });
 
 const SignInPage: FC = () => {
+  const { data: user, isLoading: loadingUser } = useMe();
+
   const [errMessage, setErrMessage] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loadingUser && user) {
+      navigate('/');
+    }
+  }, [user]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -81,6 +90,8 @@ const SignInPage: FC = () => {
   };
 
   const isSignInPending = isPending || isSignInWithGooglePending;
+
+  if (loadingUser) return <FullPageLoading />;
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">

@@ -20,6 +20,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label.tsx';
 import {
@@ -56,12 +57,7 @@ const VerifyMailPage: FC = function () {
     });
   };
 
-  if (getVerifyPending)
-    return (
-      <div className={'flex h-screen w-screen items-center justify-center'}>
-        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-      </div>
-    );
+  if (getVerifyPending) return <FullPageLoading />;
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">

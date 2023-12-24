@@ -1,6 +1,9 @@
+import { TokenObject, User } from '@/types';
+
 import axiosClient from '../client';
 import {
   ForgotPasswordBody,
+  RefreshTokenBody,
   ResetPasswordBody,
   SignInBody,
   SignInResponse,
@@ -36,4 +39,12 @@ export const verifyEmail = async () => {
 
 export const verifyEmailWithCode = async (body: VerifyEmailBody) => {
   return await axiosClient.post(`/users/verification`, body);
+};
+
+export const getMe = async () => {
+  return await axiosClient.get<User>('/me');
+};
+
+export const refreshToken = async (body: RefreshTokenBody) => {
+  return await axiosClient.post<TokenObject>('/auth/refresh-tokens', body);
 };

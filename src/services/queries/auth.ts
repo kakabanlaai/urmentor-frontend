@@ -1,11 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
+import { QUERY_KEY } from '@/constants/query.ts';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/constants/token';
 import { setItem } from '@/lib/local-storage';
 
 import {
   forgotPassword,
+  getMe,
   resetPassword,
   signIn,
   signInWithGoogle,
@@ -71,4 +73,10 @@ export const useVerifyEmail = () =>
 export const useVerifyEmailWithCode = () =>
   useMutation({
     mutationFn: (body: VerifyEmailBody) => verifyEmailWithCode(body),
+  });
+
+export const useMe = () =>
+  useQuery({
+    queryKey: [QUERY_KEY.me],
+    queryFn: () => getMe(),
   });

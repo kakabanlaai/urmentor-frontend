@@ -30,3 +30,7 @@ export type ResetPasswordBody = {
 export type VerifyEmailBody = {
   code: string;
 };
+
+export type RefreshTokenBody = {
+  refreshToken: string;
+};
