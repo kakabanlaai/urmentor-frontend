@@ -22,35 +22,46 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label.tsx';
-import { useForgotPassword } from '@/services/queries/auth';
+import {
+  useVerifyEmail,
+  useVerifyEmailWithCode,
+} from '@/services/queries/auth';
 
 const formSchema = z.object({
-  email: z.coerce.string().email('Email không hợp lệ'),
+  code: z.coerce.string().min(1, 'Mã xác nhận không được để trống'),
 });
 
-const ForgotPasswordPage: FC = function () {
+const VerifyMailPage: FC = function () {
   const [errMessage, setErrMessage] = useState('');
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      code: '',
     },
   });
 
-  const { mutate: forgotPassword, isPending } = useForgotPassword();
+  const { mutate: verifyMail, isPending } = useVerifyEmailWithCode();
+  const { isPending: getVerifyPending } = useVerifyEmail();
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    forgotPassword(values, {
+    verifyMail(values, {
       onSuccess: () => {
-        navigate('/reset-password');
+        navigate('/');
       },
       onError: (err) => {
         setErrMessage(err.message);
       },
     });
   };
+
+  if (getVerifyPending)
+    return (
+      <div className={'flex h-screen w-screen items-center justify-center'}>
+        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+      </div>
+    );
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
@@ -67,12 +78,9 @@ const ForgotPasswordPage: FC = function () {
         </a>
         <Card>
           <CardHeader className="flex-col items-center justify-between">
-            <CardTitle className="text-3xl font-bold">
-              Bạn đã quên mật khẩu?
-            </CardTitle>
+            <CardTitle className="text-3xl font-bold">Xác minh email</CardTitle>
             <CardDescription className="text-center">
-              Đừng lo lắng! Chỉ cần nhập email của bạn và chúng tôi sẽ gửi cho
-              bạn một mã để đặt lại mật khẩu của bạn!
+              Chúng tôi đã gửi cho bạn một mã để xác minh email của bạn!
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -83,11 +91,14 @@ const ForgotPasswordPage: FC = function () {
               >
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="code"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="example@gm.com" {...field} />
+                        <Input
+                          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -100,7 +111,7 @@ const ForgotPasswordPage: FC = function () {
                   {isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Lấy lại mật khẩu
+                  Xác nhận email
                 </Button>
               </form>
             </Form>
@@ -111,4 +122,4 @@ const ForgotPasswordPage: FC = function () {
   );
 };
 
-export default ForgotPasswordPage;
+export default VerifyMailPage;

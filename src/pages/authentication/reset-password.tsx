@@ -1,6 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { FC } from 'react';
+import { Loader2 } from 'lucide-react';
+import { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -20,6 +23,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label.tsx';
+import { useResetPassword } from '@/services/queries/auth.ts';
 
 const formSchema = z
   .object({
@@ -33,6 +38,9 @@ const formSchema = z
   });
 
 const ResetPasswordPage: FC = function () {
+  const [errMessage, setErrMessage] = useState('');
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,6 +49,20 @@ const ResetPasswordPage: FC = function () {
       confirmPass: '',
     },
   });
+
+  const { mutate: forgotPassword, isPending } = useResetPassword();
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    forgotPassword(values, {
+      onSuccess: () => {
+        toast.success('Đặt lại mật khẩu thành công');
+        navigate('/sign-in');
+      },
+      onError: (err) => {
+        setErrMessage(err.message);
+      },
+    });
+  };
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
@@ -68,9 +90,7 @@ const ResetPasswordPage: FC = function () {
           <CardContent>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit((values) => {
-                  console.log(values);
-                })}
+                onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-5"
               >
                 <FormField
@@ -126,7 +146,13 @@ const ResetPasswordPage: FC = function () {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
+                {errMessage ? (
+                  <Label className="text-sm text-red-500">{errMessage}</Label>
+                ) : null}
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   Lấy lại mật khẩu
                 </Button>
               </form>

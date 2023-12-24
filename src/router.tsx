@@ -1,5 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 
+import VerifyMail from '@/pages/authentication/verify-mail.tsx';
+
 import App from './App';
 import NotFoundPage from './pages/404';
 import ForgotPasswordPage from './pages/authentication/forgot-password';
@@ -27,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: '/reset-password',
     element: <ResetPasswordPage />,
+  },
+  {
+    path: '/verify-mail',
+    element: <VerifyMail />,
   },
   {
     path: '*',

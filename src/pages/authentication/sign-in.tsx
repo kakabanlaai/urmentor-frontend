@@ -5,7 +5,7 @@ import { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
 import { HiArrowLeft } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,7 @@ const formSchema = z.object({
 
 const SignInPage: FC = () => {
   const [errMessage, setErrMessage] = useState('');
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,6 +56,9 @@ const SignInPage: FC = () => {
       signInWithGoogleMutate(
         { token: tokenResponse.access_token },
         {
+          onSuccess: () => {
+            navigate('/');
+          },
           onError: (err) => {
             setErrMessage(err.message);
           },
@@ -67,6 +71,9 @@ const SignInPage: FC = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     signIn(values, {
+      onSuccess: () => {
+        navigate('/');
+      },
       onError: (err) => {
         setErrMessage(err.message);
       },

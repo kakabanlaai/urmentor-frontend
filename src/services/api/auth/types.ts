@@ -17,3 +17,16 @@ export type SignInWithGoogleBody = {
 
 export type SignUpResponse = User & TokenObject;
 export type SignInResponse = User & TokenObject;
+
+export type ForgotPasswordBody = {
+  email: string;
+};
+
+export type ResetPasswordBody = {
+  password: string;
+  code: string;
+};
+
+export type VerifyEmailBody = {
+  code: string;
+};
