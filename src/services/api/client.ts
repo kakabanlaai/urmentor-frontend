@@ -6,7 +6,7 @@ import axios, {
 } from 'axios';
 
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/constants/token.ts';
-import { getItem, setItem } from '@/lib/local-storage.ts';
+import { delItem, getItem, setItem } from '@/lib/local-storage.ts';
 import { refreshToken } from '@/services/api/auth';
 
 const axiosRequestConfig: AxiosRequestConfig = {
@@ -40,34 +40,27 @@ axiosClient.interceptors.response.use(
   async function (error) {
     const originalRequest = error.config;
 
-    if (error.response) {
-      if (error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = false;
-
-        try {
-          const response = await refreshToken({
-            refreshToken: getItem<string>(REFRESH_TOKEN_KEY) || '',
-          });
-
+    if (error.response.status === 401 || error.response.status === 403) {
+      refreshToken({
+        refreshToken: getItem<string>(REFRESH_TOKEN_KEY) || '',
+      })
+        .then((response) => {
           setItem(ACCESS_TOKEN_KEY, response.data.accessToken);
           setItem(REFRESH_TOKEN_KEY, response.data.refreshToken);
-
-          originalRequest.defaults.headers.common['Authorization'] =
+          originalRequest.headers['Authorization'] =
             'Bearer ' + response.data.accessToken;
           return axiosClient(originalRequest);
-        } catch (_error: any) {
-          setItem(ACCESS_TOKEN_KEY, '');
-          setItem(REFRESH_TOKEN_KEY, '');
+        })
+        .catch((_error) => {
+          delItem(ACCESS_TOKEN_KEY);
+          delItem(REFRESH_TOKEN_KEY);
           if (_error.response && _error.response.data) {
             return Promise.reject(_error.response.data);
           }
-
           return Promise.reject(_error);
-        }
-      }
-      return Promise.reject(error.response.data);
+        });
     }
-    return Promise.reject(error);
+    return Promise.reject(error.response.data);
   },
 );
 
