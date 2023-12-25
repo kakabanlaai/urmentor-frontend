@@ -11,7 +11,8 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (isLoading) return;
+    if (!user) {
       navigate('/sign-in');
     }
   }, [user, isLoading]);

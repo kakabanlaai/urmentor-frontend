@@ -41,11 +41,8 @@ axiosClient.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response) {
-      if (
-        (error.response.status === 401 || error.response.status === 403) &&
-        !originalRequest._retry
-      ) {
-        originalRequest._retry = true;
+      if (error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = false;
 
         try {
           const response = await refreshToken({
@@ -59,6 +56,8 @@ axiosClient.interceptors.response.use(
             'Bearer ' + response.data.accessToken;
           return axiosClient(originalRequest);
         } catch (_error: any) {
+          setItem(ACCESS_TOKEN_KEY, '');
+          setItem(REFRESH_TOKEN_KEY, '');
           if (_error.response && _error.response.data) {
             return Promise.reject(_error.response.data);
           }
