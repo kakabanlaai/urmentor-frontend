@@ -15,6 +15,11 @@ function App() {
     if (!user) {
       navigate('/sign-in');
     }
+
+    if (user && !user.isActive) {
+      navigate('/verify-email');
+      return;
+    }
   }, [user, isLoading]);
 
   if (isLoading) return <FullPageLoading />;

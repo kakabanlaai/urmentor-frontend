@@ -31,7 +31,7 @@ const router = createBrowserRouter([
     element: <ResetPasswordPage />,
   },
   {
-    path: '/verify-mail',
+    path: '/verify-email',
     element: <VerifyMail />,
   },
   {

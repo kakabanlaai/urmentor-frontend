@@ -1,9 +1,10 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
 import { QUERY_KEY } from '@/constants/query.ts';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/constants/token';
 import { setItem } from '@/lib/local-storage';
+import { User } from '@/types';
 
 import {
   forgotPassword,
@@ -26,57 +27,71 @@ import {
 
 export const useSignIn = () =>
   useMutation({
-    mutationFn: (body: SignInBody) => signIn(body),
-    onSuccess: (res) => {
-      setItem(ACCESS_TOKEN_KEY, res.data.accessToken);
-      setItem(REFRESH_TOKEN_KEY, res.data.refreshToken);
+    mutationFn: (body: SignInBody) => signIn(body).then((res) => res.data),
+    onSuccess: (data) => {
+      setItem(ACCESS_TOKEN_KEY, data.accessToken);
+      setItem(REFRESH_TOKEN_KEY, data.refreshToken);
       toast.success('Đăng nhập thành công');
     },
   });
 
 export const useSignUp = () =>
   useMutation({
-    mutationFn: (body: SignUpBody) => signUp(body),
-    onSuccess: (res) => {
-      setItem(ACCESS_TOKEN_KEY, res.data.accessToken);
-      setItem(REFRESH_TOKEN_KEY, res.data.refreshToken);
+    mutationFn: (body: SignUpBody) => signUp(body).then((res) => res.data),
+    onSuccess: (data) => {
+      setItem(ACCESS_TOKEN_KEY, data.accessToken);
+      setItem(REFRESH_TOKEN_KEY, data.refreshToken);
       toast.success('Đăng ký thành công');
     },
   });
 
 export const useSignInWithGoogle = () =>
   useMutation({
-    mutationFn: (body: SignInWithGoogleBody) => signInWithGoogle(body),
-    onSuccess: (res) => {
-      setItem(ACCESS_TOKEN_KEY, res.data.accessToken);
-      setItem(REFRESH_TOKEN_KEY, res.data.refreshToken);
+    mutationFn: (body: SignInWithGoogleBody) =>
+      signInWithGoogle(body).then((res) => res.data),
+    onSuccess: (data) => {
+      setItem(ACCESS_TOKEN_KEY, data.accessToken);
+      setItem(REFRESH_TOKEN_KEY, data.refreshToken);
       toast.success('Đăng nhập thành công');
     },
   });
 
 export const useForgotPassword = () =>
   useMutation({
-    mutationFn: (body: ForgotPasswordBody) => forgotPassword(body),
+    mutationFn: (body: ForgotPasswordBody) =>
+      forgotPassword(body).then((res) => res.data),
   });
 
 export const useResetPassword = () =>
   useMutation({
-    mutationFn: (body: ResetPasswordBody) => resetPassword(body),
+    mutationFn: (body: ResetPasswordBody) =>
+      resetPassword(body).then((res) => res.data),
   });
 
-export const useVerifyEmail = () =>
+export const useVerifyEmail = (disabled = false) =>
   useQuery({
     queryKey: ['verify-email'],
-    queryFn: () => verifyEmail(),
+    queryFn: () => verifyEmail().then((res) => res.data),
+    enabled: !disabled,
   });
 
-export const useVerifyEmailWithCode = () =>
-  useMutation({
-    mutationFn: (body: VerifyEmailBody) => verifyEmailWithCode(body),
+export const useVerifyEmailWithCode = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: VerifyEmailBody) =>
+      verifyEmailWithCode(body).then((res) => res.data),
+
+    onSuccess: () => {
+      queryClient.setQueryData([QUERY_KEY.me], (old: User) => ({
+        ...old,
+        isActive: true,
+      }));
+    },
   });
+};
 
 export const useMe = () =>
   useQuery({
     queryKey: [QUERY_KEY.me],
-    queryFn: () => getMe(),
+    queryFn: () => getMe().then((res) => res.data),
   });

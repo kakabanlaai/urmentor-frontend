@@ -44,7 +44,7 @@ const SignInPage: FC = () => {
     if (!loadingUser && user) {
       navigate('/');
     }
-  }, [user]);
+  }, [user, loadingUser]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

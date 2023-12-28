@@ -24,6 +24,7 @@ import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label.tsx';
 import {
+  useMe,
   useVerifyEmail,
   useVerifyEmailWithCode,
 } from '@/services/queries/auth';
@@ -35,6 +36,7 @@ const formSchema = z.object({
 const VerifyMailPage: FC = function () {
   const [errMessage, setErrMessage] = useState('');
   const navigate = useNavigate();
+  const { data: user, isLoading: loadingUser } = useMe();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,7 +46,9 @@ const VerifyMailPage: FC = function () {
   });
 
   const { mutate: verifyMail, isPending } = useVerifyEmailWithCode();
-  const { isPending: getVerifyPending } = useVerifyEmail();
+  const { isLoading: getVerifyPending } = useVerifyEmail(
+    loadingUser || (user && user.isActive),
+  );
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     verifyMail(values, {
@@ -57,7 +61,7 @@ const VerifyMailPage: FC = function () {
     });
   };
 
-  if (getVerifyPending) return <FullPageLoading />;
+  if (getVerifyPending || loadingUser) return <FullPageLoading />;
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
@@ -76,41 +80,50 @@ const VerifyMailPage: FC = function () {
           <CardHeader className="flex-col items-center justify-between">
             <CardTitle className="text-3xl font-bold">Xác minh email</CardTitle>
             <CardDescription className="text-center">
-              Chúng tôi đã gửi cho bạn một mã để xác minh email của bạn!
+              {!user?.isActive
+                ? 'Chúng tôi đã gửi cho bạn một mã để xác minh email của bạn!'
+                : 'Email của bạn đã được xác minh'}
             </CardDescription>
           </CardHeader>
+
           <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-5"
-              >
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {errMessage ? (
-                  <Label className="text-sm text-red-500">{errMessage}</Label>
-                ) : null}
-                <Button type="submit" className="w-full" disabled={isPending}>
-                  {isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {!user?.isActive ? (
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-5"
+                >
+                  <FormField
+                    control={form.control}
+                    name="code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {errMessage ? (
+                    <Label className="text-sm text-red-500">{errMessage}</Label>
                   ) : null}
-                  Xác nhận email
-                </Button>
-              </form>
-            </Form>
+                  <Button type="submit" className="w-full" disabled={isPending}>
+                    {isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    Xác nhận email
+                  </Button>
+                </form>
+              </Form>
+            ) : (
+              <Button className="w-full" onClick={() => navigate('/')}>
+                Quay về trang chủ
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
