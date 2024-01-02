@@ -25,6 +25,10 @@ export const signInWithGoogle = async (body: SignInWithGoogleBody) => {
   return await axiosClient.post<SignInResponse>('/auth/google', body);
 };
 
+export const signOut = async () => {
+  return await axiosClient.post('/auth/sign-out');
+};
+
 export const forgotPassword = async (body: ForgotPasswordBody) => {
   return await axiosClient.post('/users/forgot-password', body);
 };

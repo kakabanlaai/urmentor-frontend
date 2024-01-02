@@ -12,6 +12,7 @@ import {
   resetPassword,
   signIn,
   signInWithGoogle,
+  signOut,
   signUp,
   verifyEmail,
   verifyEmailWithCode,
@@ -45,6 +46,17 @@ export const useSignUp = () =>
     },
   });
 
+export const useSignOut = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => signOut().then((res) => res.data),
+    onSuccess: () => {
+      setItem(ACCESS_TOKEN_KEY, '');
+      setItem(REFRESH_TOKEN_KEY, '');
+      queryClient.setQueryData([QUERY_KEY.me], null);
+    },
+  });
+};
 export const useSignInWithGoogle = () =>
   useMutation({
     mutationFn: (body: SignInWithGoogleBody) =>
