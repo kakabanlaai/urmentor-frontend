@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label.tsx';
 import {
   useMe,
+  useSignOut,
   useVerifyEmail,
   useVerifyEmailWithCode,
 } from '@/services/queries/auth';
@@ -37,6 +38,7 @@ const VerifyMailPage: FC = function () {
   const [errMessage, setErrMessage] = useState('');
   const navigate = useNavigate();
   const { data: user, isLoading: loadingUser } = useMe();
+  const { mutate: signOut } = useSignOut();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -81,7 +83,7 @@ const VerifyMailPage: FC = function () {
             <CardTitle className="text-3xl font-bold">Xác minh email</CardTitle>
             <CardDescription className="text-center">
               {!user?.isActive
-                ? 'Chúng tôi đã gửi cho bạn một mã để xác minh email của bạn!'
+                ? 'Hãy xác minh email để tiếp tục sử dụng! Chúng tôi đã gửi cho bạn một mã để xác minh email của bạn!'
                 : 'Email của bạn đã được xác minh'}
             </CardDescription>
           </CardHeader>
@@ -116,6 +118,18 @@ const VerifyMailPage: FC = function () {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Xác nhận email
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      signOut(undefined, {
+                        onSuccess: () => navigate('/sign-in'),
+                      })
+                    }
+                    type={'button'}
+                    variant={'outline'}
+                    className={'w-full'}
+                  >
+                    Đăng xuất
                   </Button>
                 </form>
               </Form>

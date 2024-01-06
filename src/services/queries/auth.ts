@@ -26,25 +26,32 @@ import {
   VerifyEmailBody,
 } from '../api/auth/types';
 
-export const useSignIn = () =>
-  useMutation({
+export const useSignIn = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: (body: SignInBody) => signIn(body).then((res) => res.data),
     onSuccess: (data) => {
       setItem(ACCESS_TOKEN_KEY, data.accessToken);
       setItem(REFRESH_TOKEN_KEY, data.refreshToken);
       toast.success('Đăng nhập thành công');
+      queryClient.setQueryData([QUERY_KEY.me], data);
     },
   });
+};
 
-export const useSignUp = () =>
-  useMutation({
+export const useSignUp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: (body: SignUpBody) => signUp(body).then((res) => res.data),
     onSuccess: (data) => {
       setItem(ACCESS_TOKEN_KEY, data.accessToken);
       setItem(REFRESH_TOKEN_KEY, data.refreshToken);
       toast.success('Đăng ký thành công');
+      queryClient.setQueryData([QUERY_KEY.me], data);
     },
   });
+};
 
 export const useSignOut = () => {
   const queryClient = useQueryClient();
@@ -57,16 +64,20 @@ export const useSignOut = () => {
     },
   });
 };
-export const useSignInWithGoogle = () =>
-  useMutation({
+export const useSignInWithGoogle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: (body: SignInWithGoogleBody) =>
       signInWithGoogle(body).then((res) => res.data),
     onSuccess: (data) => {
       setItem(ACCESS_TOKEN_KEY, data.accessToken);
       setItem(REFRESH_TOKEN_KEY, data.refreshToken);
       toast.success('Đăng nhập thành công');
+      queryClient.setQueryData([QUERY_KEY.me], data);
     },
   });
+};
 
 export const useForgotPassword = () =>
   useMutation({

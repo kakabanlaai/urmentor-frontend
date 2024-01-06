@@ -1,5 +1,7 @@
 import { Edit3, MessageCircleMore, Plus } from 'lucide-react';
 
+import ProgramList from '@/components/program-list.tsx';
+import RatingList from '@/components/rating-list.tsx';
 import {
   Avatar,
   AvatarFallback,
@@ -27,7 +29,7 @@ const ProfilePage = () => {
             className="w-40 rounded-full border-4 border-white"
           />
           <div className="mt-2 flex items-center space-x-2">
-            <p className="text-2xl">Amanda Ross</p>
+            <p className="text-2xl text-primary">Amanda Ross</p>
           </div>
           <p className="text-gray-700">
             Senior Software Engineer at Tailwind CSS
@@ -43,7 +45,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="profile" className="my-8">
+      <Tabs defaultValue="program" className="my-8">
         <TabsList>
           <TabsTrigger value="profile">Thông tin</TabsTrigger>
           <TabsTrigger value="program">Chương trình cố vấn</TabsTrigger>
@@ -239,9 +241,13 @@ const ProfilePage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="program"> Program </TabsContent>
+        <TabsContent value="program">
+          <ProgramList />
+        </TabsContent>
 
-        <TabsContent value="rating"> Rating </TabsContent>
+        <TabsContent value="rating">
+          <RatingList />
+        </TabsContent>
       </Tabs>
     </>
   );

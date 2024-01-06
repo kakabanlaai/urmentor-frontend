@@ -1,5 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 
+import Index from '@/layout/admin-layout';
+import MentorApplicationPage from '@/pages/admin/mentor-application-page.tsx';
 import VerifyMail from '@/pages/authentication/verify-mail.tsx';
 
 import App from './App';
@@ -23,6 +25,16 @@ const router = createBrowserRouter([
       {
         path: '/profile/:id',
         element: <ProfilePage />,
+      },
+    ],
+  },
+  {
+    path: 'admin',
+    element: <Index />,
+    children: [
+      {
+        path: 'mentor-applications',
+        element: <MentorApplicationPage />,
       },
     ],
   },

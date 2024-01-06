@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useMe } from '@/services/queries/auth';
 
@@ -11,6 +11,16 @@ import UserButton from './user-button';
 export default function Header() {
   const [top, setTop] = useState<boolean>(true);
   const { data: me, isLoading } = useMe();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (me && !me.isActive) {
+      navigate('/verify-email');
+      return;
+    }
+  }, [me, isLoading]);
 
   // detect whether user has scrolled the page down by 10px
   const scrollHandler = () => {
@@ -32,12 +42,15 @@ export default function Header() {
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <div className="flex h-16 items-center justify-between md:h-20">
           {/* Site branding */}
-          <Label className="mr-4 flex shrink-0 items-center gap-2 text-2xl font-bold text-primary">
+          <Label
+            className="mr-4 flex shrink-0 items-center gap-2 text-2xl font-bold text-primary hover:cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             <img src="/images/logo.svg" alt="urMentor" className="h-14 w-14" />
             <span>urMentor</span>
           </Label>
 
-          {!isLoading && me ? (
+          {isLoading ? null : me ? (
             <UserButton />
           ) : (
             <nav className=" flex grow">

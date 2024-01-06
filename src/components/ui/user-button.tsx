@@ -1,6 +1,7 @@
-import { LayoutDashboard, LogOut, User } from 'lucide-react';
+import { BookOpenCheck, LayoutDashboard, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import RegisterMentorModal from '@/components/modal/register-mentor-modal.tsx';
 import { useMe, useSignOut } from '@/services/queries/auth';
 
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
@@ -40,15 +41,28 @@ const UserButton = () => {
             </div>
           </div>
         </DropdownMenuItem>
+
         <DropdownMenuSeparator />
+
+        <RegisterMentorModal>
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <BookOpenCheck className="mr-2 h-4 w-4" />
+            Đăng ký làm mentor
+          </DropdownMenuItem>
+        </RegisterMentorModal>
+
+        <DropdownMenuSeparator />
+
         <DropdownMenuItem>
           <User className="mr-2 h-4 w-4" />
-          <span>Chỉnh sửa thông tin</span>
+          <span>Thông tin cá nhân</span>
         </DropdownMenuItem>
+
         <DropdownMenuItem>
           <LayoutDashboard className="mr-2 h-4 w-4" />
           Dashboard
         </DropdownMenuItem>
+
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() =>
