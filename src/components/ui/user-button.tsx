@@ -1,8 +1,9 @@
 import { BookOpenCheck, LayoutDashboard, LogOut, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import RegisterMentorModal from '@/components/modal/register-mentor-modal.tsx';
 import { useMe, useSignOut } from '@/services/queries/auth';
+import { Role } from '@/types';
 
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 import {
@@ -42,14 +43,23 @@ const UserButton = () => {
           </div>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+        {me?.role === Role.Mentee && (
+          <>
+            <DropdownMenuSeparator />
 
-        <RegisterMentorModal>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            <BookOpenCheck className="mr-2 h-4 w-4" />
-            Đăng ký làm mentor
-          </DropdownMenuItem>
-        </RegisterMentorModal>
+            <RegisterMentorModal>
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                disabled={!!me.mentorApplication}
+              >
+                <BookOpenCheck className="mr-2 h-4 w-4" />
+                {me.mentorApplication
+                  ? 'Đã đăng ký làm mentor'
+                  : 'Đăng ký làm mentor'}
+              </DropdownMenuItem>
+            </RegisterMentorModal>
+          </>
+        )}
 
         <DropdownMenuSeparator />
 
@@ -58,10 +68,12 @@ const UserButton = () => {
           <span>Thông tin cá nhân</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem>
-          <LayoutDashboard className="mr-2 h-4 w-4" />
-          Dashboard
-        </DropdownMenuItem>
+        <Link to="/dashboard">
+          <DropdownMenuItem>
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Dashboard
+          </DropdownMenuItem>
+        </Link>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem

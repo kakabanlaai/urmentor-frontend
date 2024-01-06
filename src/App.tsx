@@ -193,6 +193,7 @@ function App() {
       <div className="-mx-4 my-10 flex flex-wrap">
         {mentors.map((mentor) => (
           <div
+            key={mentor.id}
             onClick={() => navigate(`/profile/${mentor.id}`)}
             className="w-full px-4 md:w-1/2 lg:w-1/3 xl:w-1/4"
           >

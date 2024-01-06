@@ -3,6 +3,7 @@ import { FC, PropsWithChildren, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button.tsx';
@@ -25,6 +26,7 @@ import {
 import { Input } from '@/components/ui/input.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { useMe } from '@/services/queries/auth.ts';
+import { useCreateMentorApplication } from '@/services/queries/mentor-application.ts';
 import { supabase } from '@/services/supabase-client.ts';
 
 type Props = PropsWithChildren;
@@ -39,22 +41,28 @@ const RegisterMentorModal: FC<Props> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [isUploadingCv, setUploadingCv] = useState(false);
 
+  const {
+    mutate,
+    isPending: isCreating,
+    error: createError,
+  } = useCreateMentorApplication();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       introduction: '',
-      cv: new File([], ''),
+      cv: undefined,
     },
   });
   const navigate = useNavigate();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let cvUrl = '';
-    if (values.cv) {
+    if (values.cv && values.cv.name !== '' && values.cv.size !== 0) {
       setUploadingCv(true);
       const { data, error } = await supabase.storage
         .from('urMentor')
-        .upload('cv/' + me?.id, values.cv, {
+        .upload('cv/' + values.cv.name, values.cv, {
           cacheControl: '3600',
           upsert: true,
         });
@@ -71,11 +79,28 @@ const RegisterMentorModal: FC<Props> = ({ children }) => {
       setUploadingCv(false);
     }
 
-    const payload = {
-      ...values,
-      cv: cvUrl,
-    };
+    mutate(
+      cvUrl
+        ? {
+            introduction: values.introduction,
+            cv: cvUrl,
+          }
+        : {
+            introduction: values.introduction,
+          },
+      {
+        onSuccess: () => {
+          toast.success('Đăng ký làm mentor thành công');
+          setOpen(false);
+        },
+        onError: (error) => {
+          toast.error('Đăng ký làm mentor thất bại: ' + error.message);
+        },
+      },
+    );
   };
+
+  const isLoading = isCreating || isUploadingCv;
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
@@ -131,8 +156,10 @@ const RegisterMentorModal: FC<Props> = ({ children }) => {
                 </FormItem>
               )}
             />
-            <div className={'space-x-2'}>
-              <Button type="submit">Đăng ký</Button>
+            <div className={'flex items-center space-x-2'}>
+              <Button type="submit" disabled={isLoading}>
+                Đăng ký
+              </Button>
               <Button
                 type={'button'}
                 variant={'outline'}
@@ -140,9 +167,14 @@ const RegisterMentorModal: FC<Props> = ({ children }) => {
                   navigate(`/profile/${me?.id}`);
                   setOpen(false);
                 }}
+                disabled={isLoading}
               >
                 Cập nhật hồ sơ
               </Button>
+              {isLoading && <ClipLoader color={'#094849'} size={10} />}
+              {createError && (
+                <span className={'text-red-500'}>{createError.message}</span>
+              )}
             </div>
           </form>
         </Form>

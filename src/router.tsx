@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 
 import Index from '@/layout/admin-layout';
+import DashboardLayout from '@/layout/dashboard-layout.tsx';
 import MentorApplicationPage from '@/pages/admin/mentor-application-page.tsx';
 import VerifyMail from '@/pages/authentication/verify-mail.tsx';
 
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
         element: <MentorApplicationPage />,
       },
     ],
+  },
+  {
+    path: '/dashboard',
+    element: <DashboardLayout />,
   },
   {
     path: '/sign-in',

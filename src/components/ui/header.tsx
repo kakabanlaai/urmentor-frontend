@@ -2,7 +2,9 @@ import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import AdminButton from '@/components/ui/admin-button.tsx';
 import { useMe } from '@/services/queries/auth';
+import { Role } from '@/types';
 
 import { Button } from './button';
 import { Label } from './label';
@@ -51,7 +53,11 @@ export default function Header() {
           </Label>
 
           {isLoading ? null : me ? (
-            <UserButton />
+            me.role !== Role.Admin ? (
+              <UserButton />
+            ) : (
+              <AdminButton />
+            )
           ) : (
             <nav className=" flex grow">
               {/* Desktop sign in links */}
