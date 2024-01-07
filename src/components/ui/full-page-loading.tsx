@@ -1,8 +1,15 @@
 import { ClipLoader } from 'react-spinners';
 
-const FullPageLoading = () => {
+import { cn } from '@/lib/utils.ts';
+
+const FullPageLoading = ({ className }: { className?: string }) => {
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
+    <div
+      className={cn(
+        'flex h-screen w-screen items-center justify-center',
+        className,
+      )}
+    >
       <ClipLoader color={'#094849'} size={60} />
     </div>
   );

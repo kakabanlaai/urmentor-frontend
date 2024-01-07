@@ -7,9 +7,12 @@ import {
 } from '@/components/ui/avatar.tsx';
 import { User } from '@/types';
 
-const AvatarWithFallback: FC<{ user: User }> = ({ user }) => {
+const AvatarWithFallback: FC<{ user: User; className?: string }> = ({
+  user,
+  className,
+}) => {
   return (
-    <Avatar>
+    <Avatar className={className}>
       <AvatarImage src={user.avatar} />
       <AvatarFallback>
         {user.name

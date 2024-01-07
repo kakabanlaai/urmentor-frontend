@@ -29,7 +29,7 @@ function App() {
   const skills = useGetAllSkills();
 
   if (isLoading) {
-    return <FullPageLoading />;
+    return <FullPageLoading className={'h-full w-full'} />;
   }
 
   let filteredMentors = matchSorter(mentors!, searchString, {
@@ -178,6 +178,12 @@ function App() {
             </div>
           );
         })}
+
+        {filteredMentors?.length === 0 && (
+          <div className="flex w-full justify-center">
+            <p className="text-gray-500">Không tìm thấy mentor nào.</p>
+          </div>
+        )}
       </div>
     </>
   );

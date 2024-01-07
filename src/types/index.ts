@@ -16,6 +16,12 @@ export type User = {
   hasSetPass: boolean;
   introduction: string;
   mentorApplication: Omit<MentorApplication, 'user'> | null;
+  achievements: Achievement[];
+  experiences: Experience[];
+  educations: Education[];
+  skills: Skill[];
+  programs: Program[];
+  ratings: Rating[];
 };
 
 export type TokenObject = {
@@ -52,6 +58,7 @@ export type Experience = {
   endDate: Date;
   isCurrent: boolean;
   company: string;
+  icon: string;
 };
 
 export type Education = {
@@ -62,6 +69,7 @@ export type Education = {
   endDate: Date;
   isCurrent: boolean;
   school: string;
+  icon: string;
 };
 
 export type Skill = {
@@ -86,9 +94,13 @@ export type Rating = {
   id: number;
   rating: number;
   comment: string;
+  fromUser: User;
 };
 
-export type Mentor = Pick<User, 'id' | 'name' | 'avatar' | 'introduction'> & {
+export type Mentor = Pick<
+  User,
+  'id' | 'name' | 'avatar' | 'introduction' | 'email' | 'role'
+> & {
   achievements: Achievement[];
   experiences: Experience[];
   educations: Education[];

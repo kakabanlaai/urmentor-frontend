@@ -24,7 +24,7 @@ const router = createBrowserRouter([
         element: <App />,
       },
       {
-        path: '/profile/:id',
+        path: '/profile/:mentorId',
         element: <ProfilePage />,
       },
     ],

@@ -1,19 +1,48 @@
 import { Edit3, MessageCircleMore, Plus } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 
+import AskLoginModal from '@/components/modal/ask-login-modal.tsx';
 import ProgramList from '@/components/program-list.tsx';
 import RatingList from '@/components/rating-list.tsx';
+import AvatarWithFallback from '@/components/ui/avatar-with-fallback.tsx';
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar.tsx';
+import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import Rating from '@/components/ui/rating';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getCardTitle, getMonthYear, getRatingInfo } from '@/lib/utils.ts';
+import NotFoundPage from '@/pages/404.tsx';
+import { useMe } from '@/services/queries/auth.ts';
+import { useGetProfileById } from '@/services/queries/mentor.ts';
+import { Mentor, User } from '@/types';
 
 const ProfilePage = () => {
+  const { data: me, isLoading: meLoading } = useMe();
+  const { mentorId } = useParams();
+  const { data, isLoading } = useGetProfileById(+mentorId! || 0);
+
+  if (isNaN(+mentorId!)) return <NotFoundPage />;
+
+  if (!isLoading && !data) {
+    return <NotFoundPage />;
+  }
+
+  if (isLoading || meLoading)
+    return <FullPageLoading className={'h-full w-full'} />;
+
+  const isMe = me?.id === data?.id;
+
+  const profile = isMe ? me : data;
+
+  const ratingInfo = getRatingInfo(profile as Mentor);
+
   return (
     <>
       <div className=" rounded-lg bg-white pb-4 shadow-lg">
@@ -24,32 +53,54 @@ const ProfilePage = () => {
           />
         </div>
         <div className="-mt-20 flex flex-col items-center">
-          <img
-            src="https://vojislavd.com/ta-template-demo/assets/img/profile.jpg"
-            className="w-40 rounded-full border-4 border-white"
+          <AvatarWithFallback
+            user={profile as User}
+            className={'h-40 w-40 border-4 border-white'}
           />
+
           <div className="mt-2 flex items-center space-x-2">
-            <p className="text-2xl text-primary">Amanda Ross</p>
+            <p className="text-2xl text-primary">{profile!.name}</p>
           </div>
-          <p className="text-gray-700">
-            Senior Software Engineer at Tailwind CSS
-          </p>
-          <Rating className="mt-2" />
+          <p className="text-gray-700">{getCardTitle(profile as Mentor)}</p>
+          <p className="text-gray-500">{profile!.email}</p>
+          <Rating className="mt-2" rating={ratingInfo.average} />
+          <span className="text-sm text-gray-500">
+            {ratingInfo.count} đánh giá
+            {ratingInfo.count > 0 && ` • ${ratingInfo.average} / 5`}
+          </span>
         </div>
         <div className="mt-2 flex flex-1 flex-col items-center justify-end px-8 lg:items-end">
-          <div className="mt-2 flex items-center space-x-4">
-            <Button size={'icon'}>
-              <MessageCircleMore />
-            </Button>
-            <Button>Đăng ký cố vấn</Button>
-          </div>
+          {!me && (
+            <div className="mt-2 flex items-center space-x-4">
+              <AskLoginModal>
+                <Button size={'icon'}>
+                  <MessageCircleMore />
+                </Button>
+              </AskLoginModal>
+              <AskLoginModal>
+                <Button>Đăng ký cố vấn</Button>
+              </AskLoginModal>
+            </div>
+          )}
+          {me && profile?.role === 'mentor' && (
+            <div className="mt-2 flex items-center space-x-4">
+              <Button size={'icon'}>
+                <MessageCircleMore />
+              </Button>
+              <Button>Đăng ký cố vấn</Button>
+            </div>
+          )}
         </div>
       </div>
-      <Tabs defaultValue="program" className="my-8">
+      <Tabs defaultValue="profile" className="my-8">
         <TabsList>
           <TabsTrigger value="profile">Thông tin</TabsTrigger>
-          <TabsTrigger value="program">Chương trình cố vấn</TabsTrigger>
-          <TabsTrigger value="rating">Đánh giá</TabsTrigger>
+          {profile?.role === 'mentor' && (
+            <>
+              <TabsTrigger value="program">Chương trình cố vấn</TabsTrigger>
+              <TabsTrigger value="rating">Đánh giá</TabsTrigger>
+            </>
+          )}
         </TabsList>
 
         <TabsContent value="profile" className={'mt-6 flex flex-col gap-6'}>
@@ -61,28 +112,15 @@ const ProfilePage = () => {
                     Giới thiệu bản thân
                   </Label>
                   <div>
-                    {/*<Button size={'sm'} variant={'ghost'}>*/}
-                    {/*  <Plus />*/}
-                    {/*</Button>*/}
-
-                    <Button size={'sm'} variant={'ghost'}>
-                      <Edit3 />
-                    </Button>
+                    {isMe && (
+                      <Button size={'sm'} variant={'ghost'}>
+                        <Edit3 />
+                      </Button>
+                    )}
                   </div>
                 </div>
 
-                <span>
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. It has survived not only five centuries, but
-                  also the leap into electronic typesetting, remaining
-                  essentially unchanged. It was popularised in the 1960s with
-                  the release of Letraset sheets containing Lorem Ipsum
-                  passages, and more recently with desktop publishing software
-                  like Aldus PageMaker including versions of Lorem Ipsum.
-                </span>
+                <span>{profile!.introduction || 'Chưa có'}</span>
               </div>
             </CardContent>
           </Card>
@@ -95,63 +133,42 @@ const ProfilePage = () => {
                   <Label className={'text-xl text-primary md:text-2xl'}>
                     Kinh nghiệm làm việc
                   </Label>
-                  <div>
-                    <Button size={'sm'} variant={'ghost'}>
-                      <Plus />
-                    </Button>
+                  {isMe && (
+                    <div>
+                      <Button size={'sm'} variant={'ghost'}>
+                        <Plus />
+                      </Button>
 
-                    <Button size={'sm'} variant={'ghost'}>
-                      <Edit3 />
-                    </Button>
-                  </div>
+                      <Button size={'sm'} variant={'ghost'}>
+                        <Edit3 />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
-                <div className={'flex gap-5'}>
-                  <Avatar className={'h-12 w-12'}>
-                    <AvatarImage
-                      src={
-                        'https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBODF1SkE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--da4ae1908c127c677e6c706e25596035b231b592/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJY0c1bkJqb0dSVlE2RkhKbGMybDZaVjkwYjE5c2FXMXBkRnNIYVFJc0FXa0NMQUU9IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--15c3f2f3e11927673ae52b71712c1f66a7a1b7bd/Naver_Logo(2)-white.png'
-                      }
-                    />
-                    <AvatarFallback>
-                      <img src={'/images/logo.svg'} alt={'fallback'} />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className={'flex flex-col text-gray-700'}>
-                    <span className={'font-medium'}>Frontend Developer</span>
-                    <span>Naver Vietnam • 8/2019 - cur</span>
-                    <span className={'mt-3 text-gray-500'}>
-                      Lorem Ipsum is simply dummy text of the printing and
-                      typesetting industry. Lorem Ipsum has been the industry's
-                      standard dummy text ever since the 1500s, when an unknown
-                      printer took a galley of type and scrambled it to make a
-                      type specimen book.{' '}
-                    </span>
+                {profile?.experiences?.map((experience) => (
+                  <div className={'flex gap-5'} key={experience.id}>
+                    <Avatar className={'h-12 w-12'}>
+                      <AvatarImage src={experience.icon} />
+                      <AvatarFallback>
+                        <img src={'/images/logo.svg'} alt={'fallback'} />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className={'flex flex-col text-gray-700'}>
+                      <span className={'font-medium'}>{experience.title}</span>
+                      <span>
+                        {experience.company} •{' '}
+                        {getMonthYear(new Date(experience.startDate))} -
+                        {experience.isCurrent
+                          ? ' cur'
+                          : ' ' + getMonthYear(new Date(experience.endDate))}
+                      </span>
+                      <span className={'mt-3 text-gray-500'}>
+                        {experience.description}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className={'flex gap-5'}>
-                  <Avatar className={'h-12 w-12'}>
-                    <AvatarImage
-                      src={
-                        'https://iviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBODF1SkE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--da4ae1908c127c677e6c706e25596035b231b592/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJY0c1bkJqb0dSVlE2RkhKbGMybDZaVjkwYjE5c2FXMXBkRnNIYVFJc0FXa0NMQUU9IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--15c3f2f3e11927673ae52b71712c1f66a7a1b7bd/Naver_Logo(2)-white.png'
-                      }
-                    />
-                    <AvatarFallback>
-                      <img src={'/images/logo.svg'} alt={'fallback'} />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className={'flex flex-col text-gray-700'}>
-                    <span className={'font-medium'}>Frontend Developer</span>
-                    <span>Naver Vietnam • 8/2019 - cur</span>
-                    <span className={'mt-3 text-gray-500'}>
-                      Lorem Ipsum is simply dummy text of the printing and
-                      typesetting industry. Lorem Ipsum has been the industry's
-                      standard dummy text ever since the 1500s, when an unknown
-                      printer took a galley of type and scrambled it to make a
-                      type specimen book.{' '}
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -164,42 +181,44 @@ const ProfilePage = () => {
                   <Label className={'text-xl text-primary md:text-2xl'}>
                     Quá trình học tập
                   </Label>
-                  <div>
-                    <Button size={'sm'} variant={'ghost'}>
-                      <Plus />
-                    </Button>
+                  {isMe && (
+                    <div>
+                      <Button size={'sm'} variant={'ghost'}>
+                        <Plus />
+                      </Button>
 
-                    <Button size={'sm'} variant={'ghost'}>
-                      <Edit3 />
-                    </Button>
-                  </div>
+                      <Button size={'sm'} variant={'ghost'}>
+                        <Edit3 />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
-                <div className={'flex gap-5'}>
-                  <Avatar className={'h-12 w-12'}>
-                    <AvatarImage
-                      src={
-                        'https://upload.wikimedia.org/wikipedia/commons/0/00/Logo_UIT_updated.svg'
-                      }
-                    />
-                    <AvatarFallback>
-                      <img src={'/images/logo.svg'} alt={'fallback'} />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className={'flex flex-col text-gray-700'}>
-                    <span className={'font-medium capitalize'}>
-                      Trường đại học công nghệ thông tin
-                    </span>
-                    <span>Kỹ thuật phần mềm • 8/2019 - cur</span>
-                    <span className={'mt-3 text-gray-500'}>
-                      Lorem Ipsum is simply dummy text of the printing and
-                      typesetting industry. Lorem Ipsum has been the industry's
-                      standard dummy text ever since the 1500s, when an unknown
-                      printer took a galley of type and scrambled it to make a
-                      type specimen book.
-                    </span>
+                {profile?.educations?.map((education) => (
+                  <div className={'flex gap-5'}>
+                    <Avatar className={'h-12 w-12'}>
+                      <AvatarImage src={education.icon} />
+                      <AvatarFallback>
+                        <img src={'/images/logo.svg'} alt={'fallback'} />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className={'flex flex-col text-gray-700'}>
+                      <span className={'font-medium capitalize'}>
+                        {education.school}
+                      </span>
+                      <span>
+                        {education.major} •{' '}
+                        {getMonthYear(new Date(education.startDate))} -
+                        {education.isCurrent
+                          ? ' cur'
+                          : ' ' + getMonthYear(new Date(education.endDate))}
+                      </span>
+                      <span className={'mt-3 text-gray-500'}>
+                        {education.description}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -212,42 +231,64 @@ const ProfilePage = () => {
                   <Label className={'text-xl text-primary md:text-2xl'}>
                     Giải thưởng
                   </Label>
-                  <div>
-                    <Button size={'sm'} variant={'ghost'}>
-                      <Plus />
-                    </Button>
+                  {isMe && (
+                    <div>
+                      <Button size={'sm'} variant={'ghost'}>
+                        <Plus />
+                      </Button>
 
-                    <Button size={'sm'} variant={'ghost'}>
-                      <Edit3 />
-                    </Button>
-                  </div>
+                      <Button size={'sm'} variant={'ghost'}>
+                        <Edit3 />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
-                <div className={'flex flex-col'}>
-                  <div>
-                    <span className={'font-medium'}>Sinh viên 5 tốt</span>
-                    <span> • 8/2019</span>
+                {profile?.achievements?.map((achievement) => (
+                  <div className={'flex flex-col'}>
+                    <div>
+                      <span className={'font-medium'}>{achievement.title}</span>
+                      <span> • {new Date(achievement.date).getFullYear()}</span>
+                    </div>
+                    <span className={'mt-3 text-gray-500'}>
+                      {achievement.description}
+                    </span>
                   </div>
-                  <span className={'mt-3 text-gray-500'}>
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
-                    standard dummy text ever since the 1500s, when an unknown
-                    printer took a galley of type and scrambled it to make a
-                    type specimen book.
-                  </span>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className={'pt-6'}>
+              <div className={'flex flex-col gap-8'}>
+                <div className={'flex items-center justify-between'}>
+                  <Label className={'text-xl text-primary md:text-2xl'}>
+                    Kỹ năng
+                  </Label>
+                </div>
+
+                <div className={'flex '}>
+                  {profile?.skills?.map((skill) => (
+                    <Badge className={'text-md'}>{skill.name}</Badge>
+                  ))}
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="program">
-          <ProgramList />
-        </TabsContent>
+        {profile?.role === 'mentor' && (
+          <>
+            <TabsContent value="program">
+              <ProgramList programs={profile?.programs || []} />
+            </TabsContent>
 
-        <TabsContent value="rating">
-          <RatingList />
-        </TabsContent>
+            <TabsContent value="rating">
+              <RatingList ratings={profile.ratings || []} />
+            </TabsContent>
+          </>
+        )}
       </Tabs>
     </>
   );

@@ -44,3 +44,9 @@ export const getRatingInfo = (mentor: Mentor) => {
   const average = Math.round((rating * 100) / count) / 100;
   return { rating, count, average };
 };
+
+export const getMonthYear = (date: Date) => {
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  return `${month}/${year}`;
+};

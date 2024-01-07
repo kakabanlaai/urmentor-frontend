@@ -1,3 +1,5 @@
+import { FC } from 'react';
+
 import {
   Avatar,
   AvatarFallback,
@@ -5,81 +7,9 @@ import {
 } from '@/components/ui/avatar.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import Rating from '@/components/ui/rating.tsx';
+import { Rating as IRating } from '@/types';
 
-type IRating = {
-  id: string;
-  rating: number;
-  comment: string;
-  user: {
-    id: string;
-    name: string;
-    avatar: string;
-  };
-};
-const ratings: IRating[] = [
-  {
-    id: '1',
-    rating: 4,
-    comment: 'Mentor tận tình, giải đáp nhiệt tình',
-    user: {
-      id: '1',
-      name: 'Nguyễn Văn A',
-      avatar: 'https://i.pravatar.cc/300?u=1',
-    },
-  },
-  {
-    id: '2',
-    rating: 5,
-    comment: 'Mentor tận tình, giải đáp nhiệt tình',
-    user: {
-      id: '2',
-      name: 'Nguyễn Văn B',
-      avatar: 'https://i.pravatar.cc/300?u=2',
-    },
-  },
-  {
-    id: '3',
-    rating: 4,
-    comment: 'Mentor tận tình, giải đáp nhiệt tình',
-    user: {
-      id: '3',
-      name: 'Nguyễn Văn C',
-      avatar: 'https://i.pravatar.cc/300?u=3',
-    },
-  },
-  {
-    id: '4',
-    rating: 5,
-    comment: 'Mentor tận tình, giải đáp nhiệt tình',
-    user: {
-      id: '4',
-      name: 'Nguyễn Văn D',
-      avatar: 'https://i.pravatar.cc/300?u=4',
-    },
-  },
-  {
-    id: '5',
-    rating: 4,
-    comment: 'Mentor tận tình, giải đáp nhiệt tình',
-    user: {
-      id: '5',
-      name: 'Nguyễn Văn E',
-      avatar: 'https://i.pravatar.cc/300?u=5',
-    },
-  },
-  {
-    id: '6',
-    rating: 5,
-    comment: 'Mentor tận tình, giải đáp nhiệt tình',
-    user: {
-      id: '6',
-      name: 'Nguyễn Văn F',
-      avatar: 'https://i.pravatar.cc/300?u=6',
-    },
-  },
-];
-
-const RatingList = () => {
+const RatingList: FC<{ ratings: IRating[] }> = ({ ratings }) => {
   return (
     <>
       <div className="container mx-auto flex flex-col flex-wrap items-center gap-2 px-3">
@@ -95,13 +25,13 @@ const RatingList = () => {
               <div className="p-4">
                 <div className="flex items-center gap-2">
                   <Avatar>
-                    <AvatarImage src={rating?.user?.avatar} />
+                    <AvatarImage src={rating?.fromUser?.avatar} />
                     <AvatarFallback>
-                      {rating.user.name[0] || 'U'}
+                      {rating.fromUser.name[0] || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <Label>{rating.user.name}</Label>
+                    <Label>{rating.fromUser.name}</Label>
                     <span className="text-sm text-gray-600">Mentee</span>
                   </div>
                 </div>
@@ -113,6 +43,11 @@ const RatingList = () => {
             </div>
           </div>
         ))}
+        {ratings.length === 0 && (
+          <div className="flex w-full justify-center">
+            <p className="text-gray-500">Không tìm thấy đánh giá nào.</p>
+          </div>
+        )}
       </div>
     </>
   );
