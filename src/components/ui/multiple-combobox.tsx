@@ -1,5 +1,6 @@
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { FC, PropsWithChildren, useState } from 'react';
+import { ClipLoader } from 'react-spinners';
 
 import { cn } from '@/lib/utils';
 
@@ -18,6 +19,7 @@ type ComboboxProps = PropsWithChildren<{
   value: string[];
   onSelectChange: (value: string) => void;
   options: { value: string; label: string }[];
+  isLoading?: boolean;
 }>;
 
 const MultipleCombobox: FC<ComboboxProps & { className?: string }> = ({
@@ -26,6 +28,7 @@ const MultipleCombobox: FC<ComboboxProps & { className?: string }> = ({
   value,
   onSelectChange,
   className,
+  isLoading = false,
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -45,28 +48,35 @@ const MultipleCombobox: FC<ComboboxProps & { className?: string }> = ({
         <Command>
           <CommandInput placeholder={'Search...'} />
           <CommandEmpty>No item found.</CommandEmpty>
-          <CommandGroup>
-            {options.map((option) => {
-              const isSelected = value.includes(option.value);
-              return (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={(currentValue: string) => {
-                    onSelectChange(currentValue);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      'mr-2 h-4 w-4',
-                      isSelected ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                  {option.label}
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
+          {isLoading && (
+            <div className={'flex w-full justify-center'}>
+              <ClipLoader size={20} />
+            </div>
+          )}
+          {!isLoading && (
+            <CommandGroup>
+              {options.map((option) => {
+                const isSelected = value.includes(option.value);
+                return (
+                  <CommandItem
+                    key={option.value}
+                    value={option.value}
+                    onSelect={(currentValue: string) => {
+                      onSelectChange(currentValue);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        isSelected ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    {option.label}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          )}
         </Command>
       </PopoverContent>
     </Popover>

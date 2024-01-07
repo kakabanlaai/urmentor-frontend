@@ -16,7 +16,7 @@ type Program = {
   topic: string;
   title: string;
   description: string;
-  fee: number;
+  price: number;
 };
 const programs: Program[] = [
   {
@@ -25,7 +25,7 @@ const programs: Program[] = [
     title: 'Introduction to Programming',
     description:
       'An introductory course on the fundamentals of programming with an emphasis on problem-solving and algorithm development.',
-    fee: 30,
+    price: 30,
   },
   {
     id: '2',
@@ -33,7 +33,7 @@ const programs: Program[] = [
     title: 'Principles of Management',
     description:
       'A course on the basics of business management, including planning, organizing, leading, and controlling.',
-    fee: 30,
+    price: 30,
   },
   {
     id: '3',
@@ -41,7 +41,7 @@ const programs: Program[] = [
     title: 'Calculus I',
     description:
       'A study of limits, derivatives, integrals, and their applications.',
-    fee: 0,
+    price: 0,
   },
   // Add more program entries as needed
 ];
@@ -68,13 +68,13 @@ const ProgramList = () => {
                   <h2 className="flex-1 text-2xl font-bold text-gray-800">
                     {program.title}
                   </h2>
-                  {program.fee === 0 ? (
+                  {program.price === 0 ? (
                     <span className="text-md font-bold text-green-400">
                       Free
                     </span>
                   ) : (
                     <span className="text-md font-bold text-yellow-400">
-                      {program.fee} coin
+                      {program.price} coin
                     </span>
                   )}
                 </div>

@@ -14,6 +14,7 @@ export type User = {
   avatar: string;
   isActive: boolean;
   hasSetPass: boolean;
+  introduction: string;
   mentorApplication: Omit<MentorApplication, 'user'> | null;
 };
 
@@ -61,4 +62,37 @@ export type Education = {
   endDate: Date;
   isCurrent: boolean;
   school: string;
+};
+
+export type Skill = {
+  id: number;
+  name: string;
+};
+
+export type Program = {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  topic: Topic;
+};
+
+export type Topic = {
+  id: number;
+  title: string;
+};
+
+export type Rating = {
+  id: number;
+  rating: number;
+  comment: string;
+};
+
+export type Mentor = Pick<User, 'id' | 'name' | 'avatar' | 'introduction'> & {
+  achievements: Achievement[];
+  experiences: Experience[];
+  educations: Education[];
+  skills: Skill[];
+  programs: Program[];
+  ratings: Rating[];
 };

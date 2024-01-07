@@ -1,8 +1,14 @@
+import { matchSorter } from 'match-sorter';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import FullPageLoading from '@/components/ui/full-page-loading.tsx';
+import { getCardTitle, getRatingInfo } from '@/lib/utils.ts';
 import { useMe } from '@/services/queries/auth.ts';
+import { useGetAllMentors } from '@/services/queries/mentor.ts';
+import { useGetAllSkills } from '@/services/queries/skill.ts';
+import { useGetAllTopics } from '@/services/queries/topic.ts';
+import { Mentor } from '@/types';
 
 import { Button } from './components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
@@ -11,118 +17,38 @@ import { Label } from './components/ui/label';
 import MultipleCombobox from './components/ui/multiple-combobox';
 import Rating from './components/ui/rating';
 
-const mentors: {
-  id: string;
-  name: string;
-  avatar: string;
-  job: string;
-  introduction: string;
-  rating: number;
-}[] = [
-  {
-    id: 'mentor-1',
-    name: 'Alice Johnson',
-    avatar: 'https://i.pravatar.cc/300?u=1',
-    job: 'Software Engineer',
-    introduction: 'Passionate about coding and teaching others.',
-    rating: 4.8,
-  },
-  {
-    id: 'mentor-2',
-    name: 'Bob Smith',
-    avatar: 'https://i.pravatar.cc/300?u=2',
-    job: 'Data Scientist',
-    introduction: 'Loves data and enjoys sharing knowledge.',
-    rating: 4.6,
-  },
-  {
-    id: 'mentor-3',
-    name: 'Charlie Day',
-    avatar: 'https://i.pravatar.cc/300?u=3',
-    job: 'UI/UX Designer',
-    introduction: 'Design enthusiast and creative thinker.',
-    rating: 4.7,
-  },
-  {
-    id: 'mentor-4',
-    name: 'Danielle Reed',
-    avatar: 'https://i.pravatar.cc/300?u=4',
-    job: 'Full Stack Developer',
-    introduction: 'Full stack developer with a passion for teaching.',
-    rating: 4.9,
-  },
-  {
-    id: 'mentor-5',
-    name: 'Ethan Woods',
-    avatar: 'https://i.pravatar.cc/300?u=5',
-    job: 'DevOps Engineer',
-    introduction: 'DevOps guru and automation specialist.',
-    rating: 4.5,
-  },
-  {
-    id: 'mentor-6',
-    name: 'Fiona Lane',
-    avatar: 'https://i.pravatar.cc/300?u=6',
-    job: 'Project Manager',
-    introduction: 'Agile and PMP certified with a talent for leadership.',
-    rating: 4.4,
-  },
-  {
-    id: 'mentor-7',
-    name: 'George Frank',
-    avatar: 'https://i.pravatar.cc/300?u=7',
-    job: 'Cybersecurity Expert',
-    introduction: 'Cybersecurity expert, helping teams stay secure.',
-    rating: 4.8,
-  },
-  {
-    id: 'mentor-8',
-    name: 'Hannah Klein',
-    avatar: 'https://i.pravatar.cc/300?u=8',
-    job: 'Blockchain Developer',
-    introduction:
-      'Blockchain enthusiast with a knack for explaining complex concepts.',
-    rating: 4.7,
-  },
-  {
-    id: 'mentor-9',
-    name: 'Ian Douglas',
-    avatar: 'https://i.pravatar.cc/300?u=9',
-    job: 'Cloud Architect',
-    introduction:
-      'Cloud solutions architect with a love for teaching cloud computing.',
-    rating: 4.6,
-  },
-  {
-    id: 'mentor-10',
-    name: 'Jasmine Patel',
-    avatar: 'https://i.pravatar.cc/300?u=10',
-    job: 'AI Researcher',
-    introduction: 'AI researcher focused on machine learning and AI ethics.',
-    rating: 4.9,
-  },
-];
-
 function App() {
-  const [comboboxValues, setComboboxValues] = useState<string[]>([]);
-  // const { data: user, isLoading } = useMe();
-  // const navigate = useNavigate();
+  const [searchString, setSearchString] = useState('');
 
-  // useEffect(() => {
-  //   if (isLoading) return;
-  //   if (!user) {
-  //     navigate('/sign-in');
-  //   }
-
-  //   if (user && !user.isActive) {
-  //     navigate('/verify-email');
-  //     return;
-  //   }
-  // }, [user, isLoading]);
-
-  // if (isLoading) return <FullPageLoading />;
-
+  const [topicFilters, setTopicFilters] = useState<string[]>([]);
+  const [skillFilters, setSkillFilters] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  const { data: mentors, isLoading } = useGetAllMentors();
+  const topics = useGetAllTopics();
+  const skills = useGetAllSkills();
+
+  if (isLoading) {
+    return <FullPageLoading />;
+  }
+
+  let filteredMentors = matchSorter(mentors!, searchString, {
+    keys: ['name'],
+  });
+
+  if (topicFilters.length > 0) {
+    filteredMentors = filteredMentors.filter((mentor) =>
+      mentor.programs.some((programs) =>
+        topicFilters.includes(programs.topic.id.toString()),
+      ),
+    );
+  }
+
+  if (skillFilters.length > 0) {
+    filteredMentors = filteredMentors.filter((mentor) =>
+      mentor.skills.some((skill) => skillFilters.includes(skill.id.toString())),
+    );
+  }
 
   return (
     <>
@@ -152,33 +78,50 @@ function App() {
         </CardHeader>
         <CardContent>
           <div className="align-center flex gap-3">
-            <Input placeholder="Nhập tên mentor" type="name" />
+            <Input
+              placeholder="Nhập tên mentor"
+              type="name"
+              value={searchString}
+              onChange={(e) => setSearchString(e.target.value)}
+            />
             <Button>Tìm kiếm</Button>
           </div>
           <div className="align-center mt-3 flex justify-center gap-3">
             <MultipleCombobox
-              value={comboboxValues}
+              value={topicFilters}
               onSelectChange={(value) =>
-                setComboboxValues((prev) =>
+                setTopicFilters((prev) =>
                   prev.includes(value)
                     ? prev.filter((v) => v !== value)
                     : [...prev, value],
                 )
               }
-              options={[]}
+              options={
+                topics.data?.map((topic) => ({
+                  value: topic.id.toString(),
+                  label: topic.title,
+                })) || []
+              }
               placeholder="Chọn chủ đề"
+              isLoading={topics.isLoading}
             />
             <MultipleCombobox
-              value={comboboxValues}
+              value={skillFilters}
               onSelectChange={(value) =>
-                setComboboxValues((prev) =>
+                setSkillFilters((prev) =>
                   prev.includes(value)
                     ? prev.filter((v) => v !== value)
                     : [...prev, value],
                 )
               }
-              options={[]}
+              options={
+                skills.data?.map((skill) => ({
+                  value: skill.id.toString(),
+                  label: skill.name,
+                })) || []
+              }
               placeholder="Chọn kỹ năng"
+              isLoading={skills.isLoading}
             />
           </div>
         </CardContent>
@@ -191,42 +134,50 @@ function App() {
       </div>
 
       <div className="-mx-4 my-10 flex flex-wrap">
-        {mentors.map((mentor) => (
-          <div
-            key={mentor.id}
-            onClick={() => navigate(`/profile/${mentor.id}`)}
-            className="w-full px-4 md:w-1/2 lg:w-1/3 xl:w-1/4"
-          >
-            <div className="mb-8 w-full rounded-lg bg-white text-gray-900 shadow-lg hover:cursor-pointer hover:shadow-xl">
-              <div className="h-32 overflow-hidden rounded-t-lg">
-                <img
-                  className="w-full object-cover object-top"
-                  src="images/profile-bg.webp"
-                  alt="Mountain"
-                />
-              </div>
-              <div className="relative mx-auto -mt-16 h-32 w-32 overflow-hidden rounded-full border-4 border-white">
-                <img
-                  className="h-32 object-cover object-center"
-                  src={mentor.avatar}
-                  alt="Woman looking front"
-                />
-              </div>
-              <div className="mt-2 text-center">
-                <h2 className="font-semibold">{mentor.name}</h2>
-                <p className="text-gray-500">{mentor.job}</p>
-              </div>
+        {filteredMentors?.map((mentor) => {
+          const ratingInfo = getRatingInfo(mentor);
 
-              <div className=" my-4 flex justify-center">
-                <Rating rating={mentor.rating} />
-              </div>
+          return (
+            <div
+              key={mentor.id}
+              onClick={() => navigate(`/profile/${mentor.id}`)}
+              className="w-full px-4 md:w-1/2 lg:w-1/3 xl:w-1/4"
+            >
+              <div className="mb-8 w-full rounded-lg bg-white text-gray-900 shadow-lg hover:cursor-pointer hover:shadow-xl">
+                <div className="h-32 overflow-hidden rounded-t-lg">
+                  <img
+                    className="w-full object-cover object-top"
+                    src="images/profile-bg.webp"
+                    alt="Mountain"
+                  />
+                </div>
+                <div className="relative mx-auto -mt-16 h-32 w-32 overflow-hidden rounded-full border-4 border-white">
+                  <img
+                    className="h-32 object-cover object-center"
+                    src={mentor.avatar}
+                    alt="Woman looking front"
+                  />
+                </div>
+                <div className="mt-2 px-4 text-center">
+                  <h2 className="font-semibold">{mentor.name}</h2>
+                  <p className="text-gray-500">{getCardTitle(mentor)}</p>
+                </div>
 
-              <div className="mt-2 flex w-full justify-center border-t p-4">
-                <Button>Xem chi tiết</Button>
+                <div className=" my-4 flex scroll-py-2 flex-col items-center justify-center gap-2">
+                  <Rating rating={ratingInfo.average} />
+                  <span className="text-sm text-gray-500">
+                    {ratingInfo.count} đánh giá
+                    {ratingInfo.count > 0 && ` • ${ratingInfo.average} / 5`}
+                  </span>
+                </div>
+
+                <div className="mt-2 flex w-full justify-center border-t p-4">
+                  <Button>Xem chi tiết</Button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );
