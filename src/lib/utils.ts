@@ -2,13 +2,13 @@ import { type ClassValue, clsx } from 'clsx';
 import { matchSorter } from 'match-sorter';
 import { twMerge } from 'tailwind-merge';
 
-import { Mentor } from '@/types';
+import { User } from '@/types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getCardTitle = (mentor: Mentor) => {
+export const getCardTitle = (mentor: User) => {
   if (mentor.experiences.length > 0) {
     const sortedEperiences = matchSorter(mentor.experiences, '', {
       baseSort: (a, b) => (a.item.startDate > b.item.startDate ? -1 : 1),
@@ -34,8 +34,9 @@ export const getCardTitle = (mentor: Mentor) => {
   return '';
 };
 
-export const getRatingInfo = (mentor: Mentor) => {
-  if (mentor.ratings.length === 0) return { rating: 0, count: 0, average: 0 };
+export const getRatingInfo = (mentor: User) => {
+  if (!mentor.ratings || mentor.ratings.length === 0)
+    return { rating: 0, count: 0, average: 0 };
 
   const rating = mentor.ratings.reduce((sum, review) => {
     return sum + review.rating;
@@ -46,7 +47,7 @@ export const getRatingInfo = (mentor: Mentor) => {
 };
 
 export const getMonthYear = (date: Date) => {
-  const month = date.getMonth();
+  const month = date.getMonth() + 1;
   const year = date.getFullYear();
   return `${month}/${year}`;
 };

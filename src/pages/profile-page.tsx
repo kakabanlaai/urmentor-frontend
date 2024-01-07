@@ -1,6 +1,8 @@
 import { Edit3, MessageCircleMore, Plus } from 'lucide-react';
+import { matchSorter } from 'match-sorter';
 import { useParams } from 'react-router-dom';
 
+import AddEditExperienceModal from '@/components/modal/add-edit-experience-modal.tsx';
 import AskLoginModal from '@/components/modal/ask-login-modal.tsx';
 import ProgramList from '@/components/program-list.tsx';
 import RatingList from '@/components/rating-list.tsx';
@@ -13,6 +15,7 @@ import {
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import ExperienceMoreOption from '@/components/ui/experience-more-option.tsx';
 import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import Rating from '@/components/ui/rating';
@@ -21,27 +24,35 @@ import { getCardTitle, getMonthYear, getRatingInfo } from '@/lib/utils.ts';
 import NotFoundPage from '@/pages/404.tsx';
 import { useMe } from '@/services/queries/auth.ts';
 import { useGetProfileById } from '@/services/queries/mentor.ts';
-import { Mentor, User } from '@/types';
+import { User } from '@/types';
 
 const ProfilePage = () => {
   const { data: me, isLoading: meLoading } = useMe();
   const { mentorId } = useParams();
-  const { data, isLoading } = useGetProfileById(+mentorId! || 0);
+  const { data: profile, isLoading } = useGetProfileById(+mentorId! || 0);
 
   if (isNaN(+mentorId!)) return <NotFoundPage />;
-
-  if (!isLoading && !data) {
-    return <NotFoundPage />;
-  }
 
   if (isLoading || meLoading)
     return <FullPageLoading className={'h-full w-full'} />;
 
-  const isMe = me?.id === data?.id;
+  if (!profile) return <NotFoundPage />;
 
-  const profile = isMe ? me : data;
+  const isMe = me?.id === profile?.id;
 
-  const ratingInfo = getRatingInfo(profile as Mentor);
+  const ratingInfo = getRatingInfo(profile);
+
+  const sortedExperiences = matchSorter(profile?.experiences || [], '', {
+    baseSort: (a, b) => (b.item.startDate < a.item.startDate ? -1 : 1),
+  });
+
+  const sortedEducations = matchSorter(profile?.educations || [], '', {
+    baseSort: (a, b) => (b.item.startDate < a.item.startDate ? -1 : 1),
+  });
+
+  const sortedAchievements = matchSorter(profile?.achievements || [], '', {
+    baseSort: (a, b) => (b.item.date < a.item.date ? -1 : 1),
+  });
 
   return (
     <>
@@ -61,8 +72,8 @@ const ProfilePage = () => {
           <div className="mt-2 flex items-center space-x-2">
             <p className="text-2xl text-primary">{profile!.name}</p>
           </div>
-          <p className="text-gray-700">{getCardTitle(profile as Mentor)}</p>
-          <p className="text-gray-500">{profile!.email}</p>
+          <span className="text-gray-700">{getCardTitle(profile!)}</span>
+          <span className="text-gray-500">{profile!.email}</span>
           <Rating className="mt-2" rating={ratingInfo.average} />
           <span className="text-sm text-gray-500">
             {ratingInfo.count} đánh giá
@@ -82,7 +93,7 @@ const ProfilePage = () => {
               </AskLoginModal>
             </div>
           )}
-          {me && profile?.role === 'mentor' && (
+          {!isMe && me && profile?.role === 'mentor' && (
             <div className="mt-2 flex items-center space-x-4">
               <Button size={'icon'}>
                 <MessageCircleMore />
@@ -135,38 +146,41 @@ const ProfilePage = () => {
                   </Label>
                   {isMe && (
                     <div>
-                      <Button size={'sm'} variant={'ghost'}>
-                        <Plus />
-                      </Button>
-
-                      <Button size={'sm'} variant={'ghost'}>
-                        <Edit3 />
-                      </Button>
+                      <AddEditExperienceModal>
+                        <Button size={'sm'} variant={'ghost'}>
+                          <Plus />
+                        </Button>
+                      </AddEditExperienceModal>
                     </div>
                   )}
                 </div>
 
-                {profile?.experiences?.map((experience) => (
-                  <div className={'flex gap-5'} key={experience.id}>
-                    <Avatar className={'h-12 w-12'}>
-                      <AvatarImage src={experience.icon} />
-                      <AvatarFallback>
-                        <img src={'/images/logo.svg'} alt={'fallback'} />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className={'flex flex-col text-gray-700'}>
-                      <span className={'font-medium'}>{experience.title}</span>
-                      <span>
-                        {experience.company} •{' '}
-                        {getMonthYear(new Date(experience.startDate))} -
-                        {experience.isCurrent
-                          ? ' cur'
-                          : ' ' + getMonthYear(new Date(experience.endDate))}
-                      </span>
-                      <span className={'mt-3 text-gray-500'}>
-                        {experience.description}
-                      </span>
+                {sortedExperiences.map((experience) => (
+                  <div className={'flex items-center justify-between'}>
+                    <div className={'flex gap-5 '} key={experience.id}>
+                      <Avatar className={'h-12 w-12'}>
+                        <AvatarImage src={experience.icon} />
+                        <AvatarFallback>
+                          <img src={'/images/logo.svg'} alt={'fallback'} />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={'flex flex-col text-gray-700'}>
+                        <span className={'font-medium'}>
+                          {experience.title}
+                        </span>
+                        <span>
+                          {experience.company} •{' '}
+                          {getMonthYear(new Date(experience.startDate))} -
+                          {experience.isCurrent
+                            ? ' cur'
+                            : ' ' + getMonthYear(new Date(experience.endDate))}
+                        </span>
+                        <span className={'mt-3 text-gray-500'}>
+                          {experience.description}
+                        </span>
+                      </div>
                     </div>
+                    {isMe && <ExperienceMoreOption experience={experience} />}
                   </div>
                 ))}
               </div>
@@ -186,15 +200,11 @@ const ProfilePage = () => {
                       <Button size={'sm'} variant={'ghost'}>
                         <Plus />
                       </Button>
-
-                      <Button size={'sm'} variant={'ghost'}>
-                        <Edit3 />
-                      </Button>
                     </div>
                   )}
                 </div>
 
-                {profile?.educations?.map((education) => (
+                {sortedEducations?.map((education) => (
                   <div className={'flex gap-5'}>
                     <Avatar className={'h-12 w-12'}>
                       <AvatarImage src={education.icon} />
@@ -244,7 +254,7 @@ const ProfilePage = () => {
                   )}
                 </div>
 
-                {profile?.achievements?.map((achievement) => (
+                {sortedAchievements?.map((achievement) => (
                   <div className={'flex flex-col'}>
                     <div>
                       <span className={'font-medium'}>{achievement.title}</span>

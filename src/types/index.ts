@@ -96,15 +96,3 @@ export type Rating = {
   comment: string;
   fromUser: User;
 };
-
-export type Mentor = Pick<
-  User,
-  'id' | 'name' | 'avatar' | 'introduction' | 'email' | 'role'
-> & {
-  achievements: Achievement[];
-  experiences: Experience[];
-  educations: Education[];
-  skills: Skill[];
-  programs: Program[];
-  ratings: Rating[];
-};

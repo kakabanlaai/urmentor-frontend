@@ -1,14 +1,12 @@
 import { matchSorter } from 'match-sorter';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { getCardTitle, getRatingInfo } from '@/lib/utils.ts';
-import { useMe } from '@/services/queries/auth.ts';
 import { useGetAllMentors } from '@/services/queries/mentor.ts';
 import { useGetAllSkills } from '@/services/queries/skill.ts';
 import { useGetAllTopics } from '@/services/queries/topic.ts';
-import { Mentor } from '@/types';
 
 import { Button } from './components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
