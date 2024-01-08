@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 
 import AddEditExperienceModal from '@/components/modal/add-edit-experience-modal.tsx';
 import AskLoginModal from '@/components/modal/ask-login-modal.tsx';
+import EditIntroductionModal from '@/components/modal/edit-introduction-modal.tsx';
 import ProgramList from '@/components/program-list.tsx';
 import RatingList from '@/components/rating-list.tsx';
 import AvatarWithFallback from '@/components/ui/avatar-with-fallback.tsx';
@@ -15,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import EducationMoreOption from '@/components/ui/education-more-option.tsx';
 import ExperienceMoreOption from '@/components/ui/experience-more-option.tsx';
 import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Label } from '@/components/ui/label.tsx';
@@ -124,9 +126,13 @@ const ProfilePage = () => {
                   </Label>
                   <div>
                     {isMe && (
-                      <Button size={'sm'} variant={'ghost'}>
-                        <Edit3 />
-                      </Button>
+                      <EditIntroductionModal
+                        introduction={profile!.introduction}
+                      >
+                        <Button size={'sm'} variant={'ghost'}>
+                          <Edit3 />
+                        </Button>
+                      </EditIntroductionModal>
                     )}
                   </div>
                 </div>
@@ -205,28 +211,31 @@ const ProfilePage = () => {
                 </div>
 
                 {sortedEducations?.map((education) => (
-                  <div className={'flex gap-5'}>
-                    <Avatar className={'h-12 w-12'}>
-                      <AvatarImage src={education.icon} />
-                      <AvatarFallback>
-                        <img src={'/images/logo.svg'} alt={'fallback'} />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className={'flex flex-col text-gray-700'}>
-                      <span className={'font-medium capitalize'}>
-                        {education.school}
-                      </span>
-                      <span>
-                        {education.major} •{' '}
-                        {getMonthYear(new Date(education.startDate))} -
-                        {education.isCurrent
-                          ? ' cur'
-                          : ' ' + getMonthYear(new Date(education.endDate))}
-                      </span>
-                      <span className={'mt-3 text-gray-500'}>
-                        {education.description}
-                      </span>
+                  <div className={'flex items-center justify-between'}>
+                    <div className={'flex gap-5'}>
+                      <Avatar className={'h-12 w-12'}>
+                        <AvatarImage src={education.icon} />
+                        <AvatarFallback>
+                          <img src={'/images/logo.svg'} alt={'fallback'} />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={'flex flex-col text-gray-700'}>
+                        <span className={'font-medium capitalize'}>
+                          {education.school}
+                        </span>
+                        <span>
+                          {education.major} •{' '}
+                          {getMonthYear(new Date(education.startDate))} -
+                          {education.isCurrent
+                            ? ' cur'
+                            : ' ' + getMonthYear(new Date(education.endDate))}
+                        </span>
+                        <span className={'mt-3 text-gray-500'}>
+                          {education.description}
+                        </span>
+                      </div>
                     </div>
+                    {isMe && <EducationMoreOption />}
                   </div>
                 ))}
               </div>
@@ -246,23 +255,27 @@ const ProfilePage = () => {
                       <Button size={'sm'} variant={'ghost'}>
                         <Plus />
                       </Button>
-
-                      <Button size={'sm'} variant={'ghost'}>
-                        <Edit3 />
-                      </Button>
                     </div>
                   )}
                 </div>
 
                 {sortedAchievements?.map((achievement) => (
-                  <div className={'flex flex-col'}>
-                    <div>
-                      <span className={'font-medium'}>{achievement.title}</span>
-                      <span> • {new Date(achievement.date).getFullYear()}</span>
+                  <div className={'flex items-center justify-between'}>
+                    <div className={'flex flex-col'}>
+                      <div>
+                        <span className={'font-medium'}>
+                          {achievement.title}
+                        </span>
+                        <span>
+                          {' '}
+                          • {new Date(achievement.date).getFullYear()}
+                        </span>
+                      </div>
+                      <span className={'mt-3 text-gray-500'}>
+                        {achievement.description}
+                      </span>
                     </div>
-                    <span className={'mt-3 text-gray-500'}>
-                      {achievement.description}
-                    </span>
+                    {isMe && <EducationMoreOption />}
                   </div>
                 ))}
               </div>
@@ -278,7 +291,7 @@ const ProfilePage = () => {
                   </Label>
                 </div>
 
-                <div className={'flex '}>
+                <div className={'flex gap-2'}>
                   {profile?.skills?.map((skill) => (
                     <Badge className={'text-md'}>{skill.name}</Badge>
                   ))}

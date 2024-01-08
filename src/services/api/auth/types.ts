@@ -34,3 +34,12 @@ export type VerifyEmailBody = {
 export type RefreshTokenBody = {
   refreshToken: string;
 };
+
+export type SetPasswordBody = {
+  password: string;
+};
+
+export type UpdatePasswordBody = {
+  curPassword: string;
+  newPassword: string;
+};

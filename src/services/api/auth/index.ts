@@ -5,11 +5,13 @@ import {
   ForgotPasswordBody,
   RefreshTokenBody,
   ResetPasswordBody,
+  SetPasswordBody,
   SignInBody,
   SignInResponse,
   SignInWithGoogleBody,
   SignUpBody,
   SignUpResponse,
+  UpdatePasswordBody,
   VerifyEmailBody,
 } from './types';
 
@@ -49,6 +51,18 @@ export const getMe = async () => {
   return await axiosClient.get<User>('/me');
 };
 
+export const updateMe = async (body: Partial<User>) => {
+  return await axiosClient.patch<User>('/me', body);
+};
+
 export const refreshToken = async (body: RefreshTokenBody) => {
   return await axiosClient.post<TokenObject>('/auth/refresh-tokens', body);
+};
+
+export const setPassword = async (body: SetPasswordBody) => {
+  return await axiosClient.patch('/me/set-password', body);
+};
+
+export const updatePassword = async (body: UpdatePasswordBody) => {
+  return await axiosClient.patch('/me/update-password', body);
 };

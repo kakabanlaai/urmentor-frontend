@@ -22,6 +22,7 @@ export type User = {
   skills: Skill[];
   programs: Program[];
   ratings: Rating[];
+  sessions: Session[];
 };
 
 export type TokenObject = {
@@ -95,4 +96,15 @@ export type Rating = {
   rating: number;
   comment: string;
   fromUser: User;
+};
+
+export type Session = {
+  id: number;
+  start: Date;
+  end: Date;
+};
+
+export type SessionRegister = {
+  id: number;
+  detail: string;
 };

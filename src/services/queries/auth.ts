@@ -10,19 +10,24 @@ import {
   forgotPassword,
   getMe,
   resetPassword,
+  setPassword,
   signIn,
   signInWithGoogle,
   signOut,
   signUp,
+  updateMe,
+  updatePassword,
   verifyEmail,
   verifyEmailWithCode,
 } from '../api/auth';
 import {
   ForgotPasswordBody,
   ResetPasswordBody,
+  SetPasswordBody,
   SignInBody,
   SignInWithGoogleBody,
   SignUpBody,
+  UpdatePasswordBody,
   VerifyEmailBody,
 } from '../api/auth/types';
 
@@ -119,3 +124,44 @@ export const useMe = () =>
     queryFn: () => getMe().then((res) => res.data),
     staleTime: 3600 * 1000,
   });
+
+export const useUpdateMe = (userId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Partial<User>) => updateMe(body).then((res) => res.data),
+
+    onSuccess: (data) => {
+      queryClient.setQueryData(['profiles', userId], (old: User) => ({
+        ...old,
+        ...data,
+      }));
+
+      queryClient.setQueryData(['me'], (old: User) => ({
+        ...old,
+        ...data,
+      }));
+    },
+  });
+};
+
+export const useSetPassword = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: SetPasswordBody) =>
+      setPassword(body).then((res) => res.data),
+
+    onSuccess: () => {
+      queryClient.setQueryData([QUERY_KEY.me], (old: User) => ({
+        ...old,
+        hasSetPass: true,
+      }));
+    },
+  });
+};
+
+export const useUpdatePassword = () => {
+  return useMutation({
+    mutationFn: (body: UpdatePasswordBody) =>
+      updatePassword(body).then((res) => res.data),
+  });
+};

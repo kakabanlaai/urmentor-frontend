@@ -1,9 +1,10 @@
-import { FileBadge, Folders, User, UserCog } from 'lucide-react';
+import { BookOpenCheck, Component, UserCog } from 'lucide-react';
 import { ReactNode, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { buttonVariants } from '@/components/ui/button.tsx';
 import FullPageLoading from '@/components/ui/full-page-loading.tsx';
+import UserButton from '@/components/ui/user-button.tsx';
 import { cn } from '@/lib/utils.ts';
 import { useMe } from '@/services/queries/auth.ts';
 
@@ -15,24 +16,19 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    name: 'Đơn đăng ký',
-    href: '/admin/mentor-applications',
-    icon: <FileBadge />,
+    name: 'Phiên cố vấn',
+    href: '/dashboard/sessions',
+    icon: <Component />,
   },
   {
-    name: 'Người dùng',
-    href: '/admin/users',
-    icon: <User />,
+    name: 'Chương trình',
+    href: '/dashboard/programs',
+    icon: <BookOpenCheck />,
   },
   {
-    name: 'Quản trị viên',
-    href: '/admin/admins',
+    name: 'Thông tin cá nhân',
+    href: '/dashboard/user-info',
     icon: <UserCog />,
-  },
-  {
-    name: 'Chủ đề cố vấn',
-    href: '/admin/topics',
-    icon: <Folders />,
   },
 ];
 
@@ -72,6 +68,7 @@ const DashboardLayout = () => {
                 </span>
               </Link>
             </div>
+            <UserButton />
           </div>
         </div>
       </nav>

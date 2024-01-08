@@ -1,4 +1,4 @@
-import { BookOpenCheck, LayoutDashboard, LogOut, User } from 'lucide-react';
+import { BookOpenCheck, LayoutDashboard, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import RegisterMentorModal from '@/components/modal/register-mentor-modal.tsx';
@@ -63,10 +63,10 @@ const UserButton = () => {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem>
-          <User className="mr-2 h-4 w-4" />
-          <span>Thông tin cá nhân</span>
-        </DropdownMenuItem>
+        {/*<DropdownMenuItem>*/}
+        {/*  <User className="mr-2 h-4 w-4" />*/}
+        {/*  <span>Thông tin cá nhân</span>*/}
+        {/*</DropdownMenuItem>*/}
 
         <Link to="/dashboard">
           <DropdownMenuItem>

@@ -30,7 +30,7 @@ function App() {
     return <FullPageLoading className={'h-full w-full'} />;
   }
 
-  let filteredMentors = matchSorter(mentors!, searchString, {
+  let filteredMentors = matchSorter(mentors || [], searchString, {
     keys: ['name'],
   });
 
