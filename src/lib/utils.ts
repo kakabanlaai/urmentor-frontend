@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
+import { getHours, getMinutes } from 'date-fns';
 import { matchSorter } from 'match-sorter';
 import { twMerge } from 'tailwind-merge';
 
@@ -50,4 +51,10 @@ export const getMonthYear = (date: Date) => {
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
   return `${month}/${year}`;
+};
+
+export const getMinuteHour = (date: Date) => {
+  const hour = getHours(date);
+  const minute = getMinutes(date);
+  return `${hour}:${minute}`;
 };

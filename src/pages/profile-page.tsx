@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import AddEditExperienceModal from '@/components/modal/add-edit-experience-modal.tsx';
 import AskLoginModal from '@/components/modal/ask-login-modal.tsx';
 import EditIntroductionModal from '@/components/modal/edit-introduction-modal.tsx';
+import RegisterSessionModal from '@/components/modal/register-session-modal.tsx';
 import ProgramList from '@/components/program-list.tsx';
 import RatingList from '@/components/rating-list.tsx';
 import AvatarWithFallback from '@/components/ui/avatar-with-fallback.tsx';
@@ -31,7 +32,7 @@ import { User } from '@/types';
 const ProfilePage = () => {
   const { data: me, isLoading: meLoading } = useMe();
   const { mentorId } = useParams();
-  const { data: profile, isLoading } = useGetProfileById(+mentorId! || 0);
+  const { data: profile, isLoading } = useGetProfileById(+mentorId!);
 
   if (isNaN(+mentorId!)) return <NotFoundPage />;
 
@@ -100,7 +101,9 @@ const ProfilePage = () => {
               <Button size={'icon'}>
                 <MessageCircleMore />
               </Button>
-              <Button>Đăng ký cố vấn</Button>
+              <RegisterSessionModal>
+                <Button>Đăng ký cố vấn</Button>
+              </RegisterSessionModal>
             </div>
           )}
         </div>

@@ -1,10 +1,11 @@
-import { format, getHours, getMinutes } from 'date-fns';
+import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button.tsx';
 import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { getMinuteHour } from '@/lib/utils.ts';
 import { useAcceptSessionRegister } from '@/services/queries/session-register.ts';
 import { useDeleteSession, useGetSession } from '@/services/queries/session.ts';
 
@@ -18,12 +19,6 @@ const DetailSessionPage = () => {
 
   if (isLoading) return <FullPageLoading className={'h-full w-full'} />;
   if (!session) return <div>Không tìm thấy phiên</div>;
-
-  const getMinuteHour = (date: Date) => {
-    const hour = getHours(date);
-    const minute = getMinutes(date);
-    return `${hour}:${minute}`;
-  };
 
   const handleDeleteSession = () => {
     deleteSession(session.id, {
@@ -147,6 +142,11 @@ const DetailSessionPage = () => {
             </div>
           </div>
         ))}
+        {session.sessionRegisters.length === 0 ? (
+          <div className={'text-center text-lg font-semibold'}>
+            Chưa có ai đăng ký
+          </div>
+        ) : null}
       </div>
     </>
   );

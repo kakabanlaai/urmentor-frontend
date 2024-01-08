@@ -50,7 +50,7 @@ const SessionPage = () => {
 
   if (user.role !== Role.Mentor) return <div>Bạn không phải là cố vấn</div>;
 
-  const events = user?.sessions.map((session) => {
+  let events = user?.sessions.map((session) => {
     const hasAccepted = session.sessionRegisters.some(
       (register) => register.status === 'approved',
     );
@@ -66,6 +66,8 @@ const SessionPage = () => {
       resource: session,
     };
   });
+
+  events = events?.filter((event) => isAfter(event.start, new Date()));
 
   const addNewEvent = (slotInfo: SlotInfo) => {
     setSelectedSlot(undefined);

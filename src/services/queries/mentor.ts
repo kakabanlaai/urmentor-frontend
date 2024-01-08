@@ -12,6 +12,6 @@ export const useGetAllMentors = () => {
 export const useGetProfileById = (id: number) => {
   return useQuery({
     queryKey: ['profiles', id],
-    queryFn: () => getMentorById(id).then((res) => res.data),
+    queryFn: () => getMentorById(id!).then((res) => res.data),
   });
 };

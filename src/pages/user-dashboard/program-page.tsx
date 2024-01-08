@@ -7,6 +7,7 @@ import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { useDebounce } from '@/hooks/useDebounce.ts';
 import { useMe } from '@/services/queries/auth.ts';
+import { Role } from '@/types';
 
 const ProgramPage = () => {
   const [searchValue, setSearchValue] = useState<string>('');
@@ -15,6 +16,8 @@ const ProgramPage = () => {
   const { data: user, isLoading } = useMe();
 
   if (isLoading) return <FullPageLoading />;
+
+  if (user?.role !== Role.Mentor) return <div>Bạn không phải là cố vấn</div>;
 
   const sortedPrograms = matchSorter(user?.programs ?? [], debouncedValue, {
     keys: ['title', 'topic.title'],

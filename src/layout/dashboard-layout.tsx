@@ -1,4 +1,4 @@
-import { BookOpenCheck, Component, UserCog } from 'lucide-react';
+import { BookOpenCheck, Component, Home, UserCog } from 'lucide-react';
 import { ReactNode, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
+  {
+    name: 'Trang chủ',
+    href: '/dashboard',
+    icon: <Home />,
+  },
   {
     name: 'Phiên cố vấn',
     href: '/dashboard/sessions',

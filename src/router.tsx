@@ -5,6 +5,7 @@ import DashboardLayout from '@/layout/dashboard-layout.tsx';
 import MentorApplicationPage from '@/pages/admin/mentor-application-page.tsx';
 import VerifyMail from '@/pages/authentication/verify-mail.tsx';
 import DetailSessionPage from '@/pages/user-dashboard/detail-session-page.tsx';
+import MySessionPage from '@/pages/user-dashboard/my-session-page.tsx';
 import PersonaPage from '@/pages/user-dashboard/persona-page.tsx';
 import ProgramPage from '@/pages/user-dashboard/program-page.tsx';
 import SessionPage from '@/pages/user-dashboard/session-page.tsx';
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
     path: '/dashboard',
     element: <DashboardLayout />,
     children: [
+      {
+        index: true,
+        element: <MySessionPage />,
+      },
       {
         path: 'user-info',
         element: <PersonaPage />,

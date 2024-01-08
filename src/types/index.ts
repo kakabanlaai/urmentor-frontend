@@ -85,6 +85,7 @@ export type Program = {
   description: string;
   price: number;
   topic: Topic;
+  user: User;
 };
 
 export type Topic = {
