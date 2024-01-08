@@ -122,7 +122,6 @@ export const useMe = () =>
   useQuery({
     queryKey: [QUERY_KEY.me],
     queryFn: () => getMe().then((res) => res.data),
-    staleTime: 3600 * 1000,
   });
 
 export const useUpdateMe = (userId: number) => {

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format, isAfter, isBefore } from 'date-fns';
+import { format, isAfter } from 'date-fns';
 import { matchSorter } from 'match-sorter';
 import { FC, PropsWithChildren, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -61,6 +61,8 @@ const RegisterSessionModal: FC<PropsWithChildren> = ({ children }) => {
     resolver: zodResolver(schema),
   });
 
+  const { reset } = form;
+
   if (!me) return null;
   if (!profile) return null;
 
@@ -75,6 +77,7 @@ const RegisterSessionModal: FC<PropsWithChildren> = ({ children }) => {
       {
         onSuccess: () => {
           toast.success('Đăng ký thành công');
+          reset();
           setOpen(false);
         },
         onError: () => {

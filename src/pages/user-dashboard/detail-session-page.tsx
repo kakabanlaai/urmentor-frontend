@@ -114,7 +114,13 @@ const DetailSessionPage = () => {
                     </div>
 
                     {acceptedMentee && acceptedMentee.id === register.id ? (
-                      <Button>Cố vấn</Button>
+                      <Button
+                        onClick={() =>
+                          navigate(`/session-register/${register.id}`)
+                        }
+                      >
+                        Cố vấn
+                      </Button>
                     ) : null}
                     {!acceptedMentee ? (
                       <Button onClick={() => handleAccept(register.id)}>

@@ -2,6 +2,7 @@ import { TabsList } from '@radix-ui/react-tabs';
 import { format } from 'date-fns';
 import { matchSorter } from 'match-sorter';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Avatar,
@@ -12,13 +13,11 @@ import { Button } from '@/components/ui/button.tsx';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card.tsx';
 import FullPageLoading from '@/components/ui/full-page-loading.tsx';
 import { Label } from '@/components/ui/label.tsx';
-import Rating from '@/components/ui/rating.tsx';
 import {
   Select,
   SelectContent,
@@ -35,6 +34,7 @@ const MySessionPage = () => {
   const [dateSort, setDateSort] = useState<'none' | 'desc' | 'asc' | string>(
     'none',
   );
+  const navigate = useNavigate();
 
   if (isLoading) return <FullPageLoading className={'h-full w-full'} />;
   if (!user) return <div>Bạn chưa đăng nhập</div>;
@@ -84,19 +84,19 @@ const MySessionPage = () => {
             <TabsTrigger value="done">Đã hoàn thành</TabsTrigger>
             <TabsTrigger value="pending">Chờ duyệt</TabsTrigger>
           </div>
-          <Select
-            onValueChange={(value) => setDateSort(value)}
-            value={dateSort}
-          >
-            <SelectTrigger className={'w-[200px]'}>
-              <SelectValue placeholder={'Sắp xếp'} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={'none'}>Không</SelectItem>
-              <SelectItem value={'desc'}>Mới nhất</SelectItem>
-              <SelectItem value={'asc'}>Cũ nhất</SelectItem>
-            </SelectContent>
-          </Select>
+          {/*<Select*/}
+          {/*  onValueChange={(value) => setDateSort(value)}*/}
+          {/*  value={dateSort}*/}
+          {/*>*/}
+          {/*  <SelectTrigger className={'w-[200px]'}>*/}
+          {/*    <SelectValue placeholder={'Sắp xếp'} />*/}
+          {/*  </SelectTrigger>*/}
+          {/*  <SelectContent>*/}
+          {/*    <SelectItem value={'none'}>Không</SelectItem>*/}
+          {/*    <SelectItem value={'desc'}>Mới nhất</SelectItem>*/}
+          {/*    <SelectItem value={'asc'}>Cũ nhất</SelectItem>*/}
+          {/*  </SelectContent>*/}
+          {/*</Select>*/}
         </TabsList>
         <TabsContent value="upcoming">
           <Card>
@@ -123,7 +123,13 @@ const MySessionPage = () => {
                             </span>
                           </div>
                         </div>
-                        <Button>Đến trang cố vấn</Button>
+                        <Button
+                          onClick={() =>
+                            navigate(`/session-register/${register.id}`)
+                          }
+                        >
+                          Đến trang cố vấn
+                        </Button>
                       </div>
 
                       <div className={'mt-2 flex flex-col gap-2'}>
@@ -282,7 +288,7 @@ const MySessionPage = () => {
                             </span>
                           </div>
                         </div>
-                        <Button>Đánh giá</Button>
+                        <Button variant={'destructive'}>Hủy đặt lịch</Button>
                       </div>
 
                       <div className={'mt-2 flex flex-col gap-2'}>

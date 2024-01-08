@@ -1563,6 +1563,11 @@
     "@types/babel__core" "^7.20.5"
     react-refresh "^0.14.0"
 
+"@zegocloud/zego-uikit-prebuilt@^1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@zegocloud/zego-uikit-prebuilt/-/zego-uikit-prebuilt-1.9.0.tgz#3d38c5b0fd26b73d26502e8ae67b97759bddcebf"
+  integrity sha512-TLZS31ak+ijwwaKR+DKE8mPI1XmGy4K64h+Tuk7SczYOn7Ovh2ZJDNVfDnXIxW+ROwnqNKQAuoznpXZk4oCZrg==
+
 acorn-jsx@^5.3.2:
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-5.3.2.tgz#7ed5bb55908b3b2f1bc55c6af1653bada7f07937"

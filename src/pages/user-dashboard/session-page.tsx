@@ -67,7 +67,7 @@ const SessionPage = () => {
     };
   });
 
-  events = events?.filter((event) => isAfter(event.start, new Date()));
+  events = events?.filter((event) => isAfter(event.end, new Date()));
 
   const addNewEvent = (slotInfo: SlotInfo) => {
     setSelectedSlot(undefined);

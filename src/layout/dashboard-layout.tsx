@@ -85,22 +85,26 @@ const DashboardLayout = () => {
       >
         <div className="h-full overflow-y-auto bg-white px-3 pb-4 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <Link
-                  to={item.href}
-                  className={cn(
-                    buttonVariants({
-                      variant: pathname === item.href ? 'default' : 'ghost',
-                    }),
-                    ' w-full justify-start text-base',
-                  )}
-                >
-                  {item.icon}
-                  <span className="ml-3">{item.name}</span>
-                </Link>
-              </li>
-            ))}
+            {navItems.map((item) =>
+              (item.href === '/dashboard/sessions' ||
+                item.href === '/dashboard/programs') &&
+              user?.role === 'mentee' ? null : (
+                <li key={item.name}>
+                  <Link
+                    to={item.href}
+                    className={cn(
+                      buttonVariants({
+                        variant: pathname === item.href ? 'default' : 'ghost',
+                      }),
+                      ' w-full justify-start text-base',
+                    )}
+                  >
+                    {item.icon}
+                    <span className="ml-3">{item.name}</span>
+                  </Link>
+                </li>
+              ),
+            )}
           </ul>
         </div>
       </aside>
