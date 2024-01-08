@@ -15,6 +15,7 @@ export const useCreateSession = () => {
       createSession(body).then((res) => res.data),
     onSuccess: (data) => {
       queryClient.setQueryData(['me'], (old: User) => {
+        data.sessionRegisters = [];
         return {
           ...old,
           sessions: [...old.sessions, data],

@@ -23,6 +23,7 @@ export type User = {
   programs: Program[];
   ratings: Rating[];
   sessions: Session[];
+  sessionRegisters: SessionRegister[];
 };
 
 export type TokenObject = {
@@ -102,9 +103,21 @@ export type Session = {
   id: number;
   start: Date;
   end: Date;
+  sessionRegisters: SessionRegister[];
 };
+
+export enum SessionRegisterStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Done = 'done',
+}
 
 export type SessionRegister = {
   id: number;
   detail: string;
+  status: SessionRegisterStatus;
+  mentee: User;
+  program: Program;
+  session: Session;
 };

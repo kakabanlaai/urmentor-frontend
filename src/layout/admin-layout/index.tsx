@@ -69,7 +69,7 @@ const AdminLayout = () => {
             <div className="flex items-center justify-start ">
               <Link to="/" className="ms-2 flex items-center md:me-24">
                 <img
-                  src="images/logo.svg"
+                  src="/images/logo.svg"
                   className="me-3 h-10"
                   alt="urMentor Logo"
                 />

@@ -50,11 +50,22 @@ const SessionPage = () => {
 
   if (user.role !== Role.Mentor) return <div>Bạn không phải là cố vấn</div>;
 
-  const events = user?.sessions.map((session) => ({
-    start: new Date(session.start),
-    end: new Date(session.end),
-    resource: session,
-  }));
+  const events = user?.sessions.map((session) => {
+    const hasAccepted = session.sessionRegisters.some(
+      (register) => register.status === 'approved',
+    );
+
+    return {
+      title: hasAccepted
+        ? 'Đã duyệt'
+        : session.sessionRegisters.length > 0
+          ? 'Chờ duyệt'
+          : 'Chưa có người đăng ký',
+      start: new Date(session.start),
+      end: new Date(session.end),
+      resource: session,
+    };
+  });
 
   const addNewEvent = (slotInfo: SlotInfo) => {
     setSelectedSlot(undefined);
@@ -131,15 +142,22 @@ const SessionPage = () => {
         onSelectSlot={addNewEvent}
         selectable
         eventPropGetter={(event) => {
-          const isSelectedEvent =
-            selectedSlot &&
-            isEqual(event.end!, selectedSlot.end!) &&
-            isEqual(event.start!, selectedSlot.start!);
+          // const isSelectedEvent =
+          //   selectedSlot &&
+          //   isEqual(event.end!, selectedSlot.end!) &&
+          //   isEqual(event.start!, selectedSlot.start!);
+
+          const color =
+            event.title === 'Đã duyệt'
+              ? '#16a34a'
+              : event.title === 'Chờ duyệt'
+                ? '#f59e0b'
+                : '#0284c7';
+
           return {
             style: {
-              backgroundColor: isSelectedEvent ? '#f59e0b' : '#38bdf8',
-              border: isSelectedEvent ? '2px solid #facc15' : 'none',
-              fontWeight: 'bold',
+              backgroundColor: color,
+              border: 'none',
             },
           };
         }}
